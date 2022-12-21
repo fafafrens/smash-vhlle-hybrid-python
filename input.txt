@@ -1,0 +1,5 @@
+param 			PATHTOPARAM
+system 		RHIC200 #LHC5020
+icinput 		PATHTOIC
+outputfolder 		PATHTOMASTERFOLDER
+Nevents 		100
