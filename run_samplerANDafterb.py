@@ -13,4 +13,3 @@ hl.write_sampler_config(param,path_tree,Nevents)
 hl.run_sampler(path_tree)
 hl.write_afterburn_config(path_tree,Nevents)
 hl.run_smash(path_tree)
-

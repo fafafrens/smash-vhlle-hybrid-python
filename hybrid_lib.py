@@ -8,8 +8,45 @@ import yaml
 # outputfolder="abbasta chiaro"
 # n_event=100
 
-list_param_file=[]
+params_dict = {
+"outputDir"     :   "none",
+"eosType"       :   "0",           
+"etaS"          :   "0.12",            #  eta/s value
+"zetaS"         :   "0.0",             #  zeta/s, bulk viscosity
+"e_crit"        :   "0.515",           #  criterion for surface finding
+"zetaSparam"    :   "3",               #  0 basic param (is zetaS 0 no bulk), 1,2,3
+"nx"            :   "101",             # number of cells in X direction
+"ny"            :   "101",             # number of cells in Y direction
+"nz"            :   "51",              # number of cells in eta direction
+"xmin"          :   "-20.0",           # coordinate of the first cell
+"xmax"          :   "20.0",            # coordinate of the last cell
+"ymin"          :   "-20.0",
+"ymax"          :   "20.0",
+"etamin"        :   "-10.0",
+"etamax"        :   "10.0",
+"icModel"       :   "5",
+"glauberVar"    :   "1",       	      #not used
+"icInputFile"   :   "ic/glissando/sources.RHIC.20-50.dat",
+"s0ScaleFactor" :   "53.55",	      #not used in glissando (glauber + rapidity)
+"epsilon0"      :   "30.0",	      #not used in glissando (glauber)
+"impactPar"     :   "7.0",	      #not used in glissando (glauber)
+"alpha"         :   "0.0",             #NEVER used
+"tau0"          :   "0.6",  	      # starting proper time
+"tauMax"        :   "15.0",  	      # proper time to stop hydro
+"dtau"          :   "0.1"   	      # timestep
+}
 
+
+glissando_dict = {
+	"sNN"      : "5020",
+	"eta0"     : "3.7", #/2.3 // midrapidity plateau
+  	"sigEta"   : "1.4", # diffuseness of rapidity profile
+  	"etaM"     : "4.5",
+  	"ybeam"    : "8.585", # beam rapidity
+  	"alphaMix" : "0.15", # WN/binary mixing
+  	"Rg"	   : "0.4", # Gaussian smearing in transverse dir
+  	"A" 	   : "0.0"  # 5e-4; // initial shear flow
+}
 
 
 input_dict = {
@@ -44,7 +81,19 @@ smash_yaml_config={
         'Shift_Id': 0}}
 }
 
-def get_input(input_file="input.txt"):
+def params_modify(**kwargs):
+	dict2 = params_dict.copy()
+	for v, k in kwargs.items():
+		dict2[v] = k
+	return dict2
+
+def glissando_modify(**kwargs):
+        dict2 = glissando_dict.copy()
+        for v, k in kwargs.items():
+                dict2[v] = k
+        return dict2
+
+def get_input(input_file):
         d = {}
         with open(input_file) as f:
                 lines = (line.rstrip() for line in f) # All lines including the blank ones
@@ -129,7 +178,7 @@ def write_afterburn_config(path_tree,Nevent=sampler_config.copy()["number_of_eve
                 yaml.dump(dict_afterb_config,file)
         #rename particle_lists.oscar, because!
         if os.path.exists(path_tree["sampler"]+"/particle_lists.oscar"):
-                os.rename(path_tree["sampler"]+"/particle_lists.oscar",path_tree["sampler"]+"/sampling0")
+	        os.rename(path_tree["sampler"]+"/particle_lists.oscar",path_tree["sampler"]+"/sampling0")
         return dict_afterb_config
 
 def run_smash(path_tree):
@@ -155,7 +204,7 @@ def run_hybrid(param, system, icfile ,outputfolder,Nevent=sampler_config.copy()[
         try:
                 run_vhlle(param,system,icfile,path_tree)
                 write_sampler_config(param,path_tree,Nevent)
-                run_pol(path_tree)
+                #run_pol(path_tree)
                 run_sampler(path_tree)
                 write_afterburn_config(path_tree,Nevent)
                 run_smash(path_tree)
@@ -172,6 +221,11 @@ def analysis_and_plots(path_tree,Nevents):
                 path_tree["plots"]+"/meanpt_midrapidity.txt", path_tree["plots"]+"/midrapidity_yield.txt", path_tree["plots"]+"/total_multiplicity.txt",
                 "--input_files",particle_file])
                 
-                subprocess.run(["python3", "plot_spectra.py", "--input_files", path_tree["plots"]+ "/*.txt", "--Nevents", Nevents ])
+                subprocess.run(["python3", "plot_spectra.py", 
+                "--input_files", 
+                path_tree["plots"]+"/yspectra.txt", path_tree["plots"]+"/mtspectra.txt", path_tree["plots"]+"/ptspectra.txt",
+                path_tree["plots"]+"/v2spectra.txt", path_tree["plots"]+"/meanmt0_midrapidity.txt",
+                path_tree["plots"]+"/meanpt_midrapidity.txt", path_tree["plots"]+"/midrapidity_yield.txt", path_tree["plots"]+"/total_multiplicity.txt",
+                "--Nevents", Nevents ])
         except:
                 print("ERROR: there's no file to analyse and plot!")
