@@ -220,7 +220,7 @@ def analysis_and_plots(path_tree,Nevents):
                 path_tree["plots"]+"/v2spectra.txt", path_tree["plots"]+"/meanmt0_midrapidity.txt", 
                 path_tree["plots"]+"/meanpt_midrapidity.txt", path_tree["plots"]+"/midrapidity_yield.txt", path_tree["plots"]+"/total_multiplicity.txt",
                 "--input_files",particle_file])
-                
+                print("Analysis done...")
                 subprocess.run(["python3", "plot_spectra.py", 
                 "--input_files", 
                 path_tree["plots"]+"/yspectra.txt", path_tree["plots"]+"/mtspectra.txt", path_tree["plots"]+"/ptspectra.txt",
@@ -229,3 +229,46 @@ def analysis_and_plots(path_tree,Nevents):
                 "--Nevents", Nevents ])
         except:
                 print("ERROR: there's no file to analyse and plot!")
+
+def name_path_tree(dict_par,dict_glis,cent):
+        # function to name the path tree
+        path_name = "system"+ dict_glis["sNN"]+"centrality"+cent + "etaS" + dict_par["etaS"] + "ecrit" +dict_par["e_crit"] + "eta0" + dict_glis["eta0"] + "sigEta" + dict_glis["sigEta"]
+        return path_name
+
+def custom_call(icfile,centrality,Nevents = 1000,**kwargs):
+	copy_params = params_modify()
+	copy_gliss_setup = glissando_modify()
+	for k,v in kwargs.items():
+		if k in copy_params:
+			print(k,v)
+			copy_params[k] = v
+		elif k in copy_gliss_setup:
+                        copy_gliss_setup[k] = v
+                        print(k,v)
+		else:
+			print("Invalid key!")
+			return 0 
+	name_maindir = name_path_tree(copy_params,copy_gliss_setup,centrality)
+
+	path_tree = init(name_maindir)
+                                
+	path_params_file = path_tree["hydro"] + "/params"
+	path_glissando_file = path_tree["hydro"] + "/gliss"
+	print_dict_to_file(copy_params,path_params_file)
+	print_dict_to_file(copy_gliss_setup,path_glissando_file)
+	run_hybrid(path_params_file,path_glissando_file,icfile,name_maindir)
+	analysis_and_plots(path_tree,str(Nevents))                  
+	subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"],path_tree["after",path_tree["pol"]]])
+	
+
+
+
+
+
+
+
+
+
+
+
+
