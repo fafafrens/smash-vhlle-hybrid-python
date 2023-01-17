@@ -258,7 +258,7 @@ def custom_call(icfile,centrality,Nevents = 1000,**kwargs):
 	print_dict_to_file(copy_gliss_setup,path_glissando_file)
 	run_hybrid(path_params_file,path_glissando_file,icfile,name_maindir)
 	analysis_and_plots(path_tree,str(Nevents))                  
-	subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"],path_tree["after",path_tree["pol"]]])
+	subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"],path_tree["after"],path_tree["pol"]]])
 	
 
 
