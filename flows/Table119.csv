@@ -1,0 +1,17 @@
+#: table_doi: 10.17182/hepdata.133152.v1/t119
+#: name: Table 119
+#: description: The dependence of the standard deviation of $v_2$ ($\sigma_{v_2}$)  on $p_{T}$ for different particle species and centralities in Pb--Pb collisions at $\sqrt{s_{\mathrm{NN}}} = 5.02$ TeV.
+#: data_file: table_119.yaml
+#: keyword phrases: Anisotropic flow
+#: keyword reactions: Pb Pb
+#: SQRT(S_NN) [TeV],5.02
+#: ABS(ETA),< 0.8
+#: CENTRALITY,20-30%
+PT [GeV/c],$\sigma_{v_2}$,Stat +,Stat -,Syst +,Syst -
+1.1,0.0096126,0.0028218,-0.0028218,0.00032759,-0.00032759
+1.7,0.030444,0.0024546,-0.0024546,0.0005817,-0.0005817
+2.25,0.041509,0.0049779,-0.0049779,0.0014146,-0.0014146
+2.75,0.057071,0.0046836,-0.0046836,0.0018888,-0.0018888
+3.5,0.067154,0.003598,-0.003598,0.0020199,-0.0020199
+5.0,0.095399,0.0067998,-0.0067998,0.0025056,-0.0025056
+

@@ -1,0 +1,16 @@
+#: table_doi: 10.17182/hepdata.133152.v1/t7
+#: name: Table 7
+#: description: The $p_{T}$-differential $v_2$ measured with two-particle correlations with a pseudorapidity gap of $|\Delta \eta| > 0.8$ for different particle species and centralities in Pb--Pb collisions at $\sqrt{s_{\mathrm{NN}}} = 5.02$ TeV.
+#: data_file: table_7.yaml
+#: keyword phrases: Anisotropic flow
+#: keyword reactions: Pb Pb
+#: SQRT(S_NN) [TeV],5.02
+#: ABS(ETA),< 0.8
+#: CENTRALITY,10-20%
+PT [GeV/c],"$v_2\{\mathrm{2, |\Delta\eta|>0.8}\}$",Stat +,Stat -,Syst +,Syst -
+1.25,0.045375,0.0078245,-0.0078245,0.0019587,-0.0019587
+1.75,0.077284,0.014421,-0.014421,0.003336,-0.003336
+2.5,0.14257,0.0070736,-0.0070736,0.0061543,-0.0061543
+3.5,0.14326,0.010406,-0.010406,0.0061838,-0.0061838
+5.0,0.11279,0.016342,-0.016342,0.0048689,-0.0048689
+

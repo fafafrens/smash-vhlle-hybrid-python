@@ -1,0 +1,17 @@
+#: table_doi: 10.17182/hepdata.133152.v1/t183
+#: name: Table 183
+#: description: The ratio $v_2\{4\}/v_2\{2,|\Delta \eta| > 0.8\}$ as a function of $p_{T}$ for different particle species and centralities in Pb--Pb collisions at $\sqrt{s_{\mathrm{NN}}} = 5.02$ TeV.
+#: data_file: table_183.yaml
+#: keyword phrases: Anisotropic flow
+#: keyword reactions: Pb Pb
+#: SQRT(S_NN) [TeV],5.02
+#: ABS(ETA),< 0.8
+#: CENTRALITY,20-30%
+PT [GeV/c],"$v_2\{\mathrm{4}\}/v_2\{\mathrm{2, |\Delta\eta|>0.8}\}$",Stat +,Stat -,Syst +,Syst -
+1.1,0.90123,0.05513,-0.05513,0.0076686,-0.0076686
+1.7,0.88872,0.016953,-0.016953,0.0035449,-0.0035449
+2.25,0.91625,0.018359,-0.018359,0.0077963,-0.0077963
+2.75,0.90675,0.013794,-0.013794,0.0075585,-0.0075585
+3.5,0.90901,0.0087874,-0.0087874,0.0063752,-0.0063752
+5.0,0.84824,0.018235,-0.018235,0.005453,-0.005453
+

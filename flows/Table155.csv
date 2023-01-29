@@ -1,0 +1,19 @@
+#: table_doi: 10.17182/hepdata.133152.v1/t155
+#: name: Table 155
+#: description: The relative elliptic flow fluctuations ($F(v_2)$) as a function of $p_{T}$ for different particle species and centralities in Pb--Pb collisions at $\sqrt{s_{\mathrm{NN}}} = 5.02$ TeV.
+#: data_file: table_155.yaml
+#: keyword phrases: Anisotropic flow
+#: keyword reactions: Pb Pb
+#: SQRT(S_NN) [TeV],5.02
+#: ABS(ETA),< 0.8
+#: CENTRALITY,30-40%
+PT [GeV/c],$F(v_2)$,Stat +,Stat -,Syst +,Syst -
+0.45,0.39621,0.010469,-0.010469,0.021719,-0.021719
+0.8,0.34649,0.0036165,-0.0036165,0.008758,-0.008758
+1.25,0.33277,0.0036268,-0.0036268,0.00598,-0.00598
+1.75,0.34491,0.0050381,-0.0050381,0.0032801,-0.0032801
+2.25,0.36991,0.0045767,-0.0045767,0.0075458,-0.0075458
+2.75,0.38328,0.007673,-0.007673,0.011288,-0.011288
+3.5,0.40276,0.013015,-0.013015,0.012051,-0.012051
+5.0,0.41892,0.027088,-0.027088,0.012534,-0.012534
+

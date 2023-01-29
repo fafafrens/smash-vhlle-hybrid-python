@@ -1,0 +1,18 @@
+#: table_doi: 10.17182/hepdata.133152.v1/t84
+#: name: Table 84
+#: description: The dependence of the mean value of $v_2$ ($\langle v_2 \rangle$) on $p_{T}$ for different particle species and centralities in Pb--Pb collisions at $\sqrt{s_{\mathrm{NN}}} = 5.02$ TeV.
+#: data_file: table_84.yaml
+#: keyword phrases: Anisotropic flow
+#: keyword reactions: Pb Pb
+#: SQRT(S_NN) [TeV],5.02
+#: ABS(ETA),< 0.8
+#: CENTRALITY,20-30%
+PT [GeV/c],$\langle v_2 \rangle$,Stat +,Stat -,Syst +,Syst -
+0.75,0.02272,0.00011894,-0.00011894,0.00097321,-0.00097321
+1.25,0.058871,0.00023523,-0.00023523,0.0014065,-0.0014065
+1.75,0.11878,0.00018448,-0.00018448,0.0014062,-0.0014062
+2.25,0.17307,0.00020848,-0.00020848,0.0012847,-0.0012847
+2.75,0.21186,0.00021378,-0.00021378,0.001793,-0.001793
+3.5,0.23834,0.00046321,-0.00046321,0.0018489,-0.0018489
+5.0,0.24377,0.00098355,-0.00098355,0.001891,-0.001891
+

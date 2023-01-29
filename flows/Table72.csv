@@ -1,0 +1,19 @@
+#: table_doi: 10.17182/hepdata.133152.v1/t72
+#: name: Table 72
+#: description: The $p_{T}$-differential $v_2$ measured with four-particle correlations for different particle species and centralities in Pb--Pb collisions at $\sqrt{s_{\mathrm{NN}}} = 5.02$ TeV.
+#: data_file: table_72.yaml
+#: keyword phrases: Anisotropic flow
+#: keyword reactions: Pb Pb
+#: SQRT(S_NN) [TeV],5.02
+#: ABS(ETA),< 0.8
+#: CENTRALITY,40-50%
+PT [GeV/c],$v_2\{\mathrm{4}\}$,Stat +,Stat -,Syst +,Syst -
+1.25,0.043784,0.025233,-0.025233,0.0,-0.0
+1.75,0.089521,0.011212,-0.011212,0.0010346,-0.0010346
+2.25,0.1652,0.0093308,-0.0093308,0.0019092,-0.0019092
+2.75,0.21863,0.012368,-0.012368,0.0025268,-0.0025268
+3.25,0.20526,0.012935,-0.012935,0.0023723,-0.0023723
+3.75,0.24638,0.018756,-0.018756,0.0022279,-0.0022279
+4.5,0.21227,0.021169,-0.021169,0.0019195,-0.0019195
+5.5,0.21265,0.039765,-0.039765,0.0024278,-0.0024278
+
