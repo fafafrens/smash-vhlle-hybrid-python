@@ -1,0 +1,19 @@
+#: table_doi: 10.17182/hepdata.84717.v1/t111
+#: name: Table 110
+#: description: pt max of anisotropic flow as a function of transverse momentum for Pb-Pb collisions at sqNN =  5.02 TeV.
+#: data_file: pt_v3_max_LAMBDA.yaml
+#: keyword reactions: Pb Pb --> LAMBDA
+#: keyword observables: pt_3_max_LAMBDA
+#: keyword cmenergies: 5020.0
+#: keyword phrases: Anisotropic Flow
+#: RE,,,Pb Pb --> LAMBDA
+#: SQRT(S) [GEV],,,5020
+#: ABS(Y),,,< 0.5 (LAB)
+Centrality,Centrality LOW,Centrality HIGH,pt_v3_max_LAMBDA,stat +,stat -,sys +,sys -
+2.5,0,5,1.49707,0.0604197,-0.0604197,0.179648,-0.179648
+7.5,5,10,1.54912,0.0449465,-0.0449465,0.154912,-0.154912
+15.0,10,20,1.47225,0.0352147,-0.0352147,0.05889,-0.05889
+25.0,20,30,1.49837,0.0940924,-0.0940924,0.134854,-0.134854
+35.0,30,40,1.43672,0.101703,-0.101703,0.229876,-0.229876
+45.0,40,50,1.51191,0.1608,-0.1608,0.226787,-0.226787
+
