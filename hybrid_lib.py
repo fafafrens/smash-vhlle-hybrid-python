@@ -46,6 +46,7 @@ glissando_dict = {
   	"alphaMix" : "0.15", # WN/binary mixing
   	"Rg"	   : "0.4", # Gaussian smearing in transverse dir
   	"A" 	   : "0.0"  # 5e-4; // initial shear flow
+  	"neta0"	   : "0.0" 
 }
 
 
