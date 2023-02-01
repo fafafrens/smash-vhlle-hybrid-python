@@ -73,7 +73,7 @@ smash_yaml_config={
         'General': {'Modus': 'List',
         'Time_Step_Mode': 'None',
         'Delta_Time': 0.1,
-        'End_Time': 10000.0,
+        'End_Time': 100.0,
         'Randomseed': -1,
         'Nevents': 100},
         'Output': {'Particles': {'Format': ['Binary', 'Oscar2013']}},
