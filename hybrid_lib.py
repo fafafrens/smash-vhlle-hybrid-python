@@ -45,10 +45,17 @@ glissando_dict = {
   	"ybeam"    : "8.585", # beam rapidity
   	"alphaMix" : "0.15", # WN/binary mixing
   	"Rg"	   : "0.4", # Gaussian smearing in transverse dir
-  	"A" 	   : "0.0"  # 5e-4; // initial shear flow
+  	"A" 	   : "0.0",  # 5e-4; // initial shear flow
   	"neta0"	   : "0.0" 
 }
 
+supermc_dict = {
+	"sNN"      : "5020",
+	"eta0"     : "3.5", # midrapidity plateau
+  	"sigmaeta" : "1.4", # diffuseness of rapidity profile
+  	"w"	   : "0.4",
+  	"eff"	   : "0.15" 
+}
 
 input_dict = {
         "param" : "vhlle param file (-param)",
@@ -90,6 +97,12 @@ def params_modify(**kwargs):
 
 def glissando_modify(**kwargs):
         dict2 = glissando_dict.copy()
+        for v, k in kwargs.items():
+                dict2[v] = k
+        return dict2
+
+def glissando_modify(**kwargs):
+        dict2 = supermc_dict.copy()
         for v, k in kwargs.items():
                 dict2[v] = k
         return dict2
@@ -179,7 +192,7 @@ def write_afterburn_config(path_tree,Nevent=sampler_config.copy()["number_of_eve
                 yaml.dump(dict_afterb_config,file)
         #rename particle_lists.oscar, because!
         if os.path.exists(path_tree["sampler"]+"/particle_lists.oscar"):
-	        os.rename(path_tree["sampler"]+"/particle_lists.oscar",path_tree["sampler"]+"/sampling0")
+                os.rename(path_tree["sampler"]+"/particle_lists.oscar",path_tree["sampler"]+"/sampling0")
         return dict_afterb_config
 
 def run_smash(path_tree):
@@ -246,7 +259,7 @@ def custom_call(icfile,centrality,Nevents = 1000,**kwargs):
 		elif k in copy_gliss_setup:
                         copy_gliss_setup[k] = v
                         print(k,v)
-		else:
+                else:
 			print("Invalid key!")
 			return 0 
 	name_maindir = name_path_tree(copy_params,copy_gliss_setup,centrality)
@@ -259,7 +272,7 @@ def custom_call(icfile,centrality,Nevents = 1000,**kwargs):
 	print_dict_to_file(copy_gliss_setup,path_glissando_file)
 	run_hybrid(path_params_file,path_glissando_file,icfile,name_maindir)
 	analysis_and_plots(path_tree,str(Nevents))                  
-	subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"],path_tree["after"],path_tree["pol"]]])
+	subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"],path_tree["after"],path_tree["pol"]])
 	
 
 
