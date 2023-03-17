@@ -101,7 +101,7 @@ def glissando_modify(**kwargs):
                 dict2[v] = k
         return dict2
 
-def glissando_modify(**kwargs):
+def supermc_modify(**kwargs):
         dict2 = supermc_dict.copy()
         for v, k in kwargs.items():
                 dict2[v] = k
