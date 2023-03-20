@@ -24,7 +24,7 @@ params_dict = {
 "ymax"          :   "20.0",
 "etamin"        :   "-10.0",
 "etamax"        :   "10.0",
-"icModel"       :   "5",
+"icModel"       :   "8",
 "glauberVar"    :   "1",       	      #not used
 "icInputFile"   :   "ic/glissando/sources.RHIC.20-50.dat",
 "s0ScaleFactor" :   "53.55",	      #not used in glissando (glauber + rapidity)
@@ -226,13 +226,13 @@ def run_hybrid(param, system, icfile ,outputfolder,Nevent=sampler_config.copy()[
                 print("ERROR: something bad happened :(")
 
 def analysis_and_plots(path_tree,Nevents):
-        try:
+        #try:
                 particle_file = path_tree["after"]+"/particles_binary.bin"
                 subprocess.run(["python3","mult_and_spectra.py",
-                "--output_files",
-                path_tree["plots"]+"/yspectra.txt", path_tree["plots"]+"/mtspectra.txt", path_tree["plots"]+"/ptspectra.txt",
-                path_tree["plots"]+"/v2spectra.txt", path_tree["plots"]+"/meanmt0_midrapidity.txt", 
-                path_tree["plots"]+"/meanpt_midrapidity.txt", path_tree["plots"]+"/midrapidity_yield.txt", path_tree["plots"]+"/total_multiplicity.txt",
+                "--output_files_extended",path_tree["plots"],
+                #path_tree["plots"]+"/yspectra.txt", path_tree["plots"]+"/mtspectra.txt", path_tree["plots"]+"/ptspectra.txt",
+                #path_tree["plots"]+"/v2spectra.txt", path_tree["plots"]+"/meanmt0_midrapidity.txt", 
+                #path_tree["plots"]+"/meanpt_midrapidity.txt", path_tree["plots"]+"/midrapidity_yield.txt", path_tree["plots"]+"/total_multiplicity.txt",
                 "--input_files",particle_file])
                 print("Analysis done...")
                 subprocess.run(["python3", "plot_spectra.py", 
@@ -241,8 +241,8 @@ def analysis_and_plots(path_tree,Nevents):
                 path_tree["plots"]+"/v2spectra.txt", path_tree["plots"]+"/meanmt0_midrapidity.txt",
                 path_tree["plots"]+"/meanpt_midrapidity.txt", path_tree["plots"]+"/midrapidity_yield.txt", path_tree["plots"]+"/total_multiplicity.txt",
                 "--Nevents", Nevents ])
-        except:
-                print("ERROR: there's no file to analyse and plot!")
+        #except:
+               # print("ERROR: there's no file to analyse and plot!")
 
 def name_path_tree(dict_par,dict_glis,cent):
         # function to name the path tree
@@ -257,9 +257,9 @@ def custom_call(icfile,centrality,Nevents = 1000,**kwargs):
 			print(k,v)
 			copy_params[k] = v
 		elif k in copy_gliss_setup:
-                        copy_gliss_setup[k] = v
-                        print(k,v)
-                else:
+                	copy_gliss_setup[k] = v
+                	print(k,v)
+		else:
 			print("Invalid key!")
 			return 0 
 	name_maindir = name_path_tree(copy_params,copy_gliss_setup,centrality)
