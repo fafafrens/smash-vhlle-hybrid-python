@@ -38,6 +38,16 @@ class BulkObservables:
         self.yhist = np.zeros((self.npdg, ybins.size - 1))
         self.pthist_midrapidity = np.zeros((self.npdg, ptbins.size - 1))
         self.v2 = np.zeros((self.npdg, ptbins.size - 1))
+        
+        self.cos2phi=np.zeros((self.npdg, ptbins.size - 1))
+        self.sin2phi=np.zeros((self.npdg, ptbins.size - 1))
+        self.sinphi=np.zeros((self.npdg, ptbins.size - 1))
+        self.cosphi=np.zeros((self.npdg, ptbins.size - 1))
+
+        # v1 histogram in rapidity 
+        self.sinrap = np.zeros((self.npdg, ybins.size - 1))
+        self.cosrap = np.zeros((self.npdg, ybins.size - 1))
+        
 
     def __eq__(self, other):
         """ Checks if two sets of bulk observables are identical. Useful for testing. """
@@ -82,6 +92,13 @@ class BulkObservables:
         mT0 = np.sqrt(m0*m0 + pT2) - m0
         cos2phi = np.where(pT2 > 0.0, (px*px - py*py) / pT2, 0.0)
 
+        sin2phi = np.where(pT2 > 0.0, 2*(px*py ) / pT2, 0.0)
+
+        sinphi=np.where(pT2 > 0.0, py / pT, 0.0)
+
+        cosphi=np.where(pT2 > 0.0, px / pT, 0.0)
+
+
         ycut = (np.abs(y) < self.midrapidity_cut)
         self.nevents += 1
 
@@ -108,6 +125,21 @@ class BulkObservables:
 
             cos2phi_hist = np.histogram(pT[pdg_and_y_cut], bins = self.ptbins, weights = cos2phi[pdg_and_y_cut])[0]
             self.v2[i,:] += np.where(pt_hist_with_cuts > 0.0, cos2phi_hist, 0.0)
+            
+            sin2phi_hist = np.histogram(pT[pdg_and_y_cut], bins = self.ptbins, weights = sin2phi[pdg_and_y_cut])[0]
+            sinphi_hist = np.histogram(pT[pdg_and_y_cut], bins = self.ptbins, weights = sinphi[pdg_and_y_cut])[0]
+            cosphi_hist = np.histogram(pT[pdg_and_y_cut], bins = self.ptbins, weights = cosphi[pdg_and_y_cut])[0]
+            
+            
+            self.cos2phi[i,:]+=np.where(pt_hist_with_cuts > 0.0, cos2phi_hist, 0.0)
+            self.sin2phi[i,:]+=np.where(pt_hist_with_cuts > 0.0, sin2phi_hist, 0.0)
+            self.sinphi[i,:]+=np.where(pt_hist_with_cuts > 0.0, sinphi_hist, 0.0)
+            self.cosphi[i,:]+=np.where(pt_hist_with_cuts > 0.0, cosphi_hist, 0.0)
+
+	
+            self.sinrap[i,:] += np.histogram(y[pdgcut], bins = self.ybins,weights = sinphi[pdgcut])[0]
+            self.cosrap[i,:] += np.histogram(y[pdgcut], bins = self.ybins,weights = cosphi[pdgcut])[0]
+            
 
     def __iadd__(self, other):
         """ Adds two sets of bulk observables, if it possible. """
@@ -125,6 +157,15 @@ class BulkObservables:
         self.yhist += other.yhist
         self.pthist_midrapidity += other.pthist_midrapidity
         self.v2 += other.v2
+        self.cos2phi+=other.cos2phi
+        self.sin2phi+=other.sin2phi
+        self.sinphi+=other.sinphi
+        self.cosphi+=other.cosphi
+
+
+  
+        self.sinrap+=other.sinrap
+        self.cosrap+=other.cosrap
 
         for i in range(self.npdg):
             if (other.midrapidity_yield[i] == 0): continue
@@ -171,7 +212,8 @@ class BulkObservables:
     def save(self, files_to_write):
         """ Saves bulk observables to text files. """
         yspectra_file, mtspectra_file, ptspectra_file, v2_file, meanmt0_midrapidity_file,\
-        meanpt_midrapidity_file, midrapidity_yield_file, total_multiplicity_file = files_to_write
+        meanpt_midrapidity_file, midrapidity_yield_file, total_multiplicity_file, cos2phi_file,sin2phi_file,\
+        cosphi_file,sinphi_file, sinrap_file, cosrap_file = files_to_write
         ybin_centers = BulkObservables.bin_centers(self.ybins)
         with open(yspectra_file, 'w') as f:
             self.write_header(f)
@@ -211,9 +253,82 @@ class BulkObservables:
                  for i in range(self.npdg):
                      # For each pT, sum of cos2phi over particles has to be divided by number of particles at this pT
                      v2 = np.where(self.pthist_midrapidity[i, bin_number] > 0,
-                                   self.v2[i, bin_number] / self.pthist_midrapidity[i, bin_number], 0.0)
+                                   self.v2[i, bin_number] / (self.pthist_midrapidity[i, bin_number]+1e-8), 0.0)
                      f.write(' %15.10f' % v2)
                  f.write('\n')
+        with open(cos2phi_file, 'w') as f:
+             self.write_header(f)
+             f.write('# pt bin edges: %s\n' % np.array_str(self.ptbins, max_line_width = 1000000))
+             f.write('# pt[GeV] bin center, cos2phi of pdg in bin (pdglist)\n')
+             for bin_number in range(ptbin_centers.size):
+                 f.write(' %6.3f' % ptbin_centers[bin_number])
+                 for i in range(self.npdg):
+                     # For each pT, sum of cos2phi over particles has to be divided by number of particles at this pT
+                     v2 = np.where(self.pthist_midrapidity[i, bin_number] > 0,
+                                   self.cos2phi[i, bin_number] / (self.pthist_midrapidity[i, bin_number]+1e-8), 0.0)
+                     f.write(' %15.10f' % v2)
+                 f.write('\n')
+
+        with open(sin2phi_file, 'w') as f:
+             self.write_header(f)
+             f.write('# pt bin edges: %s\n' % np.array_str(self.ptbins, max_line_width = 1000000))
+             f.write('# pt[GeV] bin center, cos2phi of pdg in bin (pdglist)\n')
+             for bin_number in range(ptbin_centers.size):
+                 f.write(' %6.3f' % ptbin_centers[bin_number])
+                 for i in range(self.npdg):
+                     # For each pT, sum of cos2phi over particles has to be divided by number of particles at this pT
+                     v2 = np.where(self.pthist_midrapidity[i, bin_number] > 0,
+                                   self.sin2phi[i, bin_number] / (self.pthist_midrapidity[i, bin_number]+1e-8), 0.0)
+                     f.write(' %15.10f' % v2)
+                 f.write('\n')
+        with open(sinphi_file, 'w') as f:
+             self.write_header(f)
+             f.write('# pt bin edges: %s\n' % np.array_str(self.ptbins, max_line_width = 1000000))
+             f.write('# pt[GeV] bin center, cos2phi of pdg in bin (pdglist)\n')
+             for bin_number in range(ptbin_centers.size):
+                 f.write(' %6.3f' % ptbin_centers[bin_number])
+                 for i in range(self.npdg):
+                     # For each pT, sum of cos2phi over particles has to be divided by number of particles at this pT
+                     v2 = np.where(self.pthist_midrapidity[i, bin_number] > 0,
+                                   self.sinphi[i, bin_number] / (self.pthist_midrapidity[i, bin_number]+1e-8), 0.0)
+                     f.write(' %15.10f' % v2)
+                 f.write('\n')
+
+        with open(cosphi_file, 'w') as f:
+             self.write_header(f)
+             f.write('# pt bin edges: %s\n' % np.array_str(self.ptbins, max_line_width = 1000000))
+             f.write('# pt[GeV] bin center, cos2phi of pdg in bin (pdglist)\n')
+             for bin_number in range(ptbin_centers.size):
+                 f.write(' %6.3f' % ptbin_centers[bin_number])
+                 for i in range(self.npdg):
+                     # For each pT, sum of cos2phi over particles has to be divided by number of particles at this pT
+                     v2 = np.where(self.pthist_midrapidity[i, bin_number] > 0,
+                                   self.cosphi[i, bin_number] / (self.pthist_midrapidity[i, bin_number]+1e-8), 0.0)
+                     f.write(' %15.10f' % v2)
+                 f.write('\n')
+
+        with open(sinrap_file, 'w') as f:
+            self.write_header(f)
+            f.write('# y bin edges: %s\n' % np.array_str(self.ybins, max_line_width = 1000000))
+            f.write('# y bin center, \sin(\phi) of pdg in bin (pdglist)\n')
+            for bin_number in range(ybin_centers.size):
+                f.write(' %6.3f' % ybin_centers[bin_number])
+                for i in range(self.npdg):
+                 v1 = self.sinrap[i, bin_number]/(self.yhist[i,bin_number]+1e-8)    
+                 f.write(' %15.10f' % v1)
+                f.write('\n')
+
+
+        with open(cosrap_file, 'w') as f:
+            self.write_header(f)
+            f.write('# y bin edges: %s\n' % np.array_str(self.ybins, max_line_width = 1000000))
+            f.write('# y bin center, \cos(\phi) of pdg in bin (pdglist)\n')
+            for bin_number in range(ybin_centers.size):
+                f.write(' %6.3f' % ybin_centers[bin_number])
+                for i in range(self.npdg):
+                 v1 = self.cosrap[i, bin_number]/(self.yhist[i,bin_number]+1e-8)    
+                 f.write(' %15.10f' % v1)
+                f.write('\n')
 
         for i in [meanmt0_midrapidity_file, meanpt_midrapidity_file,
                   midrapidity_yield_file, total_multiplicity_file]:
@@ -231,7 +346,8 @@ class BulkObservables:
     def read(files_to_read):
         """ Reads bulk observables, that were saved totext files by the save method. """
         yspectra_file, mtspectra_file, ptspectra_file, v2_file, meanmt0_midrapidity_file,\
-        meanpt_midrapidity_file, midrapidity_yield_file, total_multiplicity_file = files_to_read
+        meanpt_midrapidity_file, midrapidity_yield_file, total_multiplicity_file,\
+        cos2phi_file,sin2phi_file,cosphi_file,sinphi_file, sinrap_file, cosrap_file = files_to_read
         spectra = BulkObservables()
         with open(yspectra_file, 'r') as f:
             smash_version, analysis_version = f.readline().split(':')[1].split()
@@ -258,6 +374,39 @@ class BulkObservables:
             # Multiply back by number of particles at given pT from all events
             spectra.v2 = np.loadtxt(v2_file)[:,1:].T * spectra.pthist_midrapidity
 
+        with open(cos2phi_file, 'r') as f:
+            for _ in range(3): f.readline()
+            f.readline()  # pt-binning is already known from pt-spectra file
+            # Multiply back by number of particles at given pT from all events
+            spectra.cos2phi = np.loadtxt(cos2phi_file)[:,1:].T * spectra.pthist_midrapidity
+
+        with open(sin2phi_file, 'r') as f:
+            for _ in range(3): f.readline()
+            f.readline()  # pt-binning is already known from pt-spectra file
+            # Multiply back by number of particles at given pT from all events
+            spectra.sin2phi = np.loadtxt(sin2phi_file)[:,1:].T * spectra.pthist_midrapidity
+
+        with open(sinphi_file, 'r') as f:
+            for _ in range(3): f.readline()
+            f.readline()  # pt-binning is already known from pt-spectra file
+            # Multiply back by number of particles at given pT from all events
+            spectra.sinphi = np.loadtxt(sinphi_file)[:,1:].T * spectra.pthist_midrapidity
+        with open(cosphi_file, 'r') as f:
+            for _ in range(3): f.readline()
+            f.readline()  # pt-binning is already known from pt-spectra file
+            # Multiply back by number of particles at given pT from all events
+            spectra.cosphi = np.loadtxt(cosphi_file)[:,1:].T * spectra.pthist_midrapidity
+
+        with open(sinrap_file, 'r') as f:
+            for _ in range(3): f.readline()
+            f.readline() 
+            spectra.sinrap = np.loadtxt(sinrap_file)[:,1:].T 
+        with open(cosrap_file, 'r') as f:
+            for _ in range(3): f.readline()
+            f.readline() 
+            spectra.cosrap = np.loadtxt(cosrap_file)[:,1:].T 
+
+
         spectra.meanmt0_midrapidity = np.loadtxt(meanmt0_midrapidity_file)
         spectra.meanpt_midrapidity = np.loadtxt(meanpt_midrapidity_file)
         spectra.midrapidity_yield = np.loadtxt(midrapidity_yield_file)
@@ -281,12 +430,20 @@ if __name__ == '__main__':
                If invoked, the the input is 8xN files of format 'output_files'
                to be merged into 8 files.
                """)
-    parser.add_argument("--output_files", nargs='+', required=True,
+    parser.add_argument("--output_files", nargs='+', required=False,
         help = """
                Exactly 8 file names in a fixed order:
                output_files = (yspectra_file, mtspectra_file, ptspectra_file, v2_file,
                meanmt0_midrapidity_file,
                meanpt_midrapidity_file, midrapidity_yield_file, total_multiplicity_file)
+               """)
+    parser.add_argument("--output_files_extended", nargs='+', required=True,
+        help = """
+               Exactly 12 file names in a fixed order:
+               output_files = (yspectra_file, mtspectra_file, ptspectra_file, v2_file,
+               meanmt0_midrapidity_file,
+               meanpt_midrapidity_file, midrapidity_yield_file, total_multiplicity_file,
+               cos2phi_file,sin2phi_file,cosphi_file,sinphi_file,sinrap,cosrap)
                """)
     parser.add_argument("--input_files", nargs='+', required=True,
         help = """
@@ -300,11 +457,18 @@ if __name__ == '__main__':
                and parallelization is due to cmake
                """)
     args = parser.parse_args()
+    if (args.output_files_extended):
+        output_files= [args.output_files_extended[0]+"/"+i for i in ["yspectra.txt", "mtspectra.txt", "ptspectra.txt", "v2.txt",
+               "meanmt0_midrapidity.txt",
+               "meanpt_midrapidity.txt", "midrapidity_yield.txt", "total_multiplicity.txt",
+               "cos2phi.txt","sin2phi.txt","cosphi.txt","sinphi.txt","sinrap.txt","cosrap.txt"]]
+    else:
+         output_files=args.output_files
 
     if (args.merge):
         assert(len(args.input_files) % 8 == 0)
         files_to_read_list = list(zip(*(iter(args.input_files),) * 8))
-        BulkObservables.merge_basic_spectra(files_to_read_list, args.output_files)
+        BulkObservables.merge_basic_spectra(files_to_read_list, output_files)
     else:
         pdg_list = [211,-211,111,321,-321,2212,-2212,3122,-3122,1000010020,-1000010020,3312,-3312,3334,-3334,3212,-3212]
 
@@ -321,8 +485,9 @@ if __name__ == '__main__':
         else:
             spectra = BulkObservables(pdg_list = pdg_list)
             spectra.add_from_files(args.input_files)
-        spectra.save(args.output_files)
+        spectra.save(output_files)
+        print("ammammao")
 
         # Read-write consistency check
-        spectra2 = BulkObservables.read(args.output_files)
+        spectra2 = BulkObservables.read(output_files)
         assert(spectra == spectra2)
