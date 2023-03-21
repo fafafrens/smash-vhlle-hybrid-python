@@ -52,6 +52,7 @@ rule run_hybrid:
         hl.print_dict_to_file(copy_superMC_setup, path_supermc_file)
 
         # run the hybrid model and perform analysis
+        hl.run_hybrid(path_params_file,path_supermc_file,icfile,name_maindir,int(Nevents))
         hl.run_hybrid_plots(path_tree, Nevents)
         with open(output.file_name,"w") as f:
             f.write("gnegne")
