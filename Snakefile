@@ -1,15 +1,16 @@
 import hybrid_lib as hl
 
 # define a list of values for etaS and eta0
-etaS_values = ["0.12"]
-eta0_values = ["5"]
-ecrit_values = ["0.15","0.12"]
-sigEta_values = ["1.4"]
+etaS_values = ["0.08","0.12"]
+eta0_values = ["5.0"]
+ecrit_values = ["0.5","0.4"]
+sigEta_values = ["0.6","0.8"]
+eff_values = ["1.0","0.5"]
 
 rule all:
     input:
-        [f"etaS_{etaS}_eta0_{eta0}_ecrit_{ecrit}_sigEta_{sigEta}.txt" for etaS in etaS_values for eta0 in eta0_values for ecrit in ecrit_values for sigEta in sigEta_values],
-        [f"done_hyb_{etaS}_{eta0}_{ecrit}_{sigEta}.txt" for etaS in etaS_values for eta0 in eta0_values for ecrit in ecrit_values for sigEta in sigEta_values]
+        [f"etaS_{etaS}_eta0_{eta0}_ecrit_{ecrit}_sigEta_{sigEta}_eff_{eff}.txt" for eff in eff_values for etaS in etaS_values for eta0 in eta0_values for ecrit in ecrit_values for sigEta in sigEta_values],
+        [f"done_hyb_{etaS}_{eta0}_{ecrit}_{sigEta}_{eff}.txt" for eff in eff_values for etaS in etaS_values for eta0 in eta0_values for ecrit in ecrit_values for sigEta in sigEta_values]
     output:
         "chain_done.txt"
     shell:
@@ -19,16 +20,16 @@ rule all:
 rule gen_input:
     input:
     output:
-        "etaS_{etaS}_eta0_{eta0}_ecrit_{ecrit}_sigEta_{sigEta}.txt"
+        "etaS_{etaS}_eta0_{eta0}_ecrit_{ecrit}_sigEta_{sigEta}_eff_{eff}.txt"
     shell:
-        "echo ammamo > {output}" 
+        "echo ammammao > {output}" 
 
 # run the hybrid model for each combination of etaS and eta0
 rule run_hybrid:
     input:
-        "etaS_{etaS}_eta0_{eta0}_ecrit_{ecrit}_sigEta_{sigEta}.txt"
+        "etaS_{etaS}_eta0_{eta0}_ecrit_{ecrit}_sigEta_{sigEta}_eff_{eff}.txt"
     output:
-        file_name = "done_hyb_{etaS}_{eta0}_{ecrit}_{sigEta}.txt"
+        file_name = "done_hyb_{etaS}_{eta0}_{ecrit}_{sigEta}_{eff}.txt"
     run:
         Nevents = "100"
         centrality = "20-30"
@@ -37,11 +38,11 @@ rule run_hybrid:
         eta0_value = wildcards.eta0
         ecrit_value = wildcards.ecrit
         sigEta_value = wildcards.sigEta
-        print(etaS_value)
+        eff_value = wildcards.eff
 
         # modify the parameter values and create the output directory
         copy_params = hl.params_modify(etaS=etaS_value, e_crit=ecrit_value)
-        copy_superMC_setup = hl.supermc_modify(eta0=eta0_value, sigmaeta=sigEta_value)
+        copy_superMC_setup = hl.supermc_modify(eta0=eta0_value, sigmaeta=sigEta_value, eff=eff_value )
         name_maindir = hl.name_path_tree(copy_params, copy_superMC_setup, centrality)
         path_tree = hl.init(name_maindir)
         
@@ -53,7 +54,8 @@ rule run_hybrid:
 
         # run the hybrid model and perform analysis
         hl.run_hybrid(path_params_file,path_supermc_file,icfile,name_maindir,int(Nevents))
-        hl.run_hybrid_plots(path_tree, Nevents)
+        hl.analysis_and_plots(path_tree, Nevents)
+        subprocess.run(["rm -r ",path_tree["hydro"],path_tree["sampler"],path_tree["after"]])      
         with open(output.file_name,"w") as f:
             f.write("gnegne")
 
