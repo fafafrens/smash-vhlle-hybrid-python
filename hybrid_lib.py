@@ -89,23 +89,49 @@ smash_yaml_config={
         'Shift_Id': 0}}
 }
 
-def params_modify(**kwargs):
-	dict2 = params_dict.copy()
-	for v, k in kwargs.items():
-		dict2[v] = k
-	return dict2
+def modify_dictionary(dict_name,**kwargs):
+        """
+        Function used to change the entries of the dictionary called "dict_name". kwargs are of the form "key=value".
+        """
+        if dict_name == "params_dict":
+                dict_copy = params_dict.copy()
+        if dict_name == "glissando_dict":
+                dict_copy = glissando_dict.copy()
+        if dict_name == "supermc_dict":
+                dict_copy = supermc_dict.copy()
+        if dict_name == "input_dict":
+                dict_copy = input_dict.copy()
+        if dict_name == "sampler_config":
+                dict_copy = input_dict.copy()
+        if dict_name == "smash_yaml_config":
+                dict_copy = input_dict.copy()
 
-def glissando_modify(**kwargs):
-        dict2 = glissando_dict.copy()
-        for v, k in kwargs.items():
-                dict2[v] = k
-        return dict2
+        for key, value in kwargs.items():
+                if key in dict_copy.keys():
+                        dict_copy[key] = value
+                else:
+                        print("ERROR: the key you want to modify is not in this dictionary!")
+                        return
+                        
+        return dict_copy
 
-def supermc_modify(**kwargs):
-        dict2 = supermc_dict.copy()
-        for v, k in kwargs.items():
-                dict2[v] = k
-        return dict2
+# def params_modify(**kwargs):
+# 	dict2 = params_dict.copy()
+# 	for v, k in kwargs.items():
+# 		dict2[v] = k
+# 	return dict2
+
+# def glissando_modify(**kwargs):
+#         dict2 = glissando_dict.copy()
+#         for v, k in kwargs.items():
+#                 dict2[v] = k
+#         return dict2
+
+# def supermc_modify(**kwargs):
+#         dict2 = supermc_dict.copy()
+#         for v, k in kwargs.items():
+#                 dict2[v] = k
+#         return dict2
 
 def get_input(input_file):
         d = {}
@@ -244,10 +270,50 @@ def analysis_and_plots(path_tree,Nevents):
         #except:
                # print("ERROR: there's no file to analyse and plot!")
 
-def name_path_tree(dict_par,dict,cent):
-	# function to name the path tree
-	path_name = "system"+ dict["sNN"]+"centrality"+cent + "eta0" + dict["eta0"] + "ecrit" +dict_par["e_crit"]+"etaVisc"+dict_par["etaS"] + "sigeta" + dict["sigmaeta"] + "w" + dict["w"] + "f" + dict["eff"]
-	return path_name
+def get_different_key_value(dictionary1,dictionary2):
+    """
+    Compares dictionary1 and dictionary2 and outputs a string of the key_value of dictionary1 that are different from
+    the common keys with dictionary2
+    """
+    name = "" 
+    for key, value in dictionary1.items():
+        if key in dictionary2 and value != dictionary2[key]:
+            name += key + "_" + str(value) + "_" 
+    return name
+
+def name_folder(prefix="", param=params_dict, gliss=glissando_dict, 
+                    smc=supermc_dict, sampl=sampler_config, smash=smash_yaml_config):
+    """
+    Name a folder according to the unique parameters that are different from the default dictionaries.
+    "prefix" is an optional prefix that can be used to specify e.g. the centrality, number of averaged events for the IC...
+    """
+    name = ""
+    if(prefix != ""):
+        name += prefix + "_"
+
+    if param != params_dict:
+        name += "params:"
+        name += get_different_key_value(param,params_dict)  
+
+    if gliss != glissando_dict:
+        name += "gliss:" 
+        name += get_different_key_value(gliss,glissando_dict)
+        
+    if smc != supermc_dict:
+        name += "superMC:"
+        name += get_different_key_value(smc,supermc_dict)
+
+    if sampl != sampler_config:
+        name += "sampler:"
+        name += get_different_key_value(sampl, sampler_config)
+    
+    if smash != smash_yaml_config:
+        name += "smash:"
+        name += get_different_key_value(smash, smash_yaml_config)
+    
+    name = name[:-1] #remove the last "_"
+    
+    return name
 
 def custom_call(icfile,centrality,Nevents = 1000,**kwargs):
         copy_params = params_modify()
