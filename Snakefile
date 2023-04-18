@@ -1,11 +1,11 @@
 import hybrid_lib as hl
 
 # define a list of values for etaS and eta0
-etaS_values = ["0.08","0.12"]
-eta0_values = ["5.0"]
-ecrit_values = ["0.5","0.4"]
-sigEta_values = ["0.6","0.8"]
-eff_values = ["1.0","0.5"]
+etaS_values = ["0.001","0.08","0.16"]
+eta0_values = ["2.5"]
+ecrit_values = ["0.25","0.5"]
+sigEta_values = ["0.5"]
+eff_values = ["0.15"]
 
 rule all:
     input:
@@ -33,7 +33,7 @@ rule run_hybrid:
     run:
         Nevents = "100"
         centrality = "20-30"
-        icfile = "/home/palermo/superMC/rhic200_20-30%_10kevents.data"
+        icfile = "/home/palermo/superMC/rhic200-20-30%_10kevents.data"
         etaS_value = wildcards.etaS
         eta0_value = wildcards.eta0
         ecrit_value = wildcards.ecrit
@@ -41,8 +41,8 @@ rule run_hybrid:
         eff_value = wildcards.eff
 
         # modify the parameter values and create the output directory
-        copy_params = hl.params_modify(etaS=etaS_value, e_crit=ecrit_value)
-        copy_superMC_setup = hl.supermc_modify(eta0=eta0_value, sigmaeta=sigEta_value, eff=eff_value )
+        copy_params = hl.modify_dictionary("params_dict",etaS=etaS_value, e_crit=ecrit_value)
+        copy_superMC_setup = hl.modify_dictionary("supermc_dict",eta0=eta0_value, sigmaeta=sigEta_value, eff=eff_value )
         name_maindir = hl.name_folder(param=copy_params,smc=copy_superMC_setup,prefix="cent"+centrality)
         path_tree = hl.init(name_maindir)
         
