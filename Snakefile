@@ -33,7 +33,7 @@ rule run_hybrid:
     run:
         Nevents = "100"
         centrality = "20-30"
-        icfile = "/home/palermo/superMC/wouded_lhc5020_20-30%.data"
+        icfile = "/home/palermo/superMC/rhic200_20-30%_10kevents.data"
         etaS_value = wildcards.etaS
         eta0_value = wildcards.eta0
         ecrit_value = wildcards.ecrit
@@ -43,7 +43,7 @@ rule run_hybrid:
         # modify the parameter values and create the output directory
         copy_params = hl.params_modify(etaS=etaS_value, e_crit=ecrit_value)
         copy_superMC_setup = hl.supermc_modify(eta0=eta0_value, sigmaeta=sigEta_value, eff=eff_value )
-        name_maindir = hl.name_foldere(!!!)
+        name_maindir = hl.name_folder(param=copy_params,smc=copy_superMC_setup,prefix="cent"+centrality)
         path_tree = hl.init(name_maindir)
         
         # write the modified parameter values to files
@@ -53,11 +53,11 @@ rule run_hybrid:
         hl.print_dict_to_file(copy_superMC_setup, path_supermc_file)
 
         # run the hybrid model and perform analysis
-        hl.run_hybrid(path_params_file,path_supermc_file,icfile,name_maindir,int(Nevents))
+        hl.run_hybrid(path_params_file,"RHIC200",icfile,name_maindir,int(Nevents))
         hl.analysis_and_plots(path_tree, Nevents)
-        subprocess.run(["rm -r ",path_tree["hydro"],path_tree["sampler"],path_tree["after"]])      
-        with open(output.file_name,"w") as f:
-            f.write("gnegne")
+        #subprocess.run(["rm -r ",path_tree["hydro"],path_tree["sampler"],path_tree["after"]])      
+        #with open(output.file_name,"w") as f:
+            #f.write("gnegne")
 
 
 
