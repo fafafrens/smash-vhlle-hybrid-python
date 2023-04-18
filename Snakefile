@@ -56,8 +56,8 @@ rule run_hybrid:
         hl.run_hybrid(path_params_file,"RHIC200",icfile,name_maindir,int(Nevents))
         hl.analysis_and_plots(path_tree, Nevents)
         #subprocess.run(["rm -r ",path_tree["hydro"],path_tree["sampler"],path_tree["after"]])      
-        #with open(output.file_name,"w") as f:
-            #f.write("gnegne")
+        with open(output.file_name,"w") as f:
+            f.write("gnegne")
 
 
 
