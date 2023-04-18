@@ -43,7 +43,7 @@ rule run_hybrid:
         # modify the parameter values and create the output directory
         copy_params = hl.params_modify(etaS=etaS_value, e_crit=ecrit_value)
         copy_superMC_setup = hl.supermc_modify(eta0=eta0_value, sigmaeta=sigEta_value, eff=eff_value )
-        name_maindir = hl.name_path_tree(copy_params, copy_superMC_setup, centrality)
+        name_maindir = hl.name_foldere(!!!)
         path_tree = hl.init(name_maindir)
         
         # write the modified parameter values to files
