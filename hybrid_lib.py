@@ -31,7 +31,7 @@ params_dict = {
 "epsilon0"      :   "30.0",	      #not used in glissando (glauber)
 "impactPar"     :   "7.0",	      #not used in glissando (glauber)
 "alpha"         :   "0.0",             #NEVER used
-"tau0"          :   "0.6",  	      # starting proper time
+"tau0"          :   "1.0",  	      # starting proper time
 "tauMax"        :   "15.0",  	      # proper time to stop hydro
 "dtau"          :   "0.1"   	      # timestep
 }
