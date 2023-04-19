@@ -14,10 +14,10 @@ params_dict = {
 "etaS"          :   "0.12",            #  eta/s value
 "zetaS"         :   "0.0",             #  zeta/s, bulk viscosity
 "e_crit"        :   "0.515",           #  criterion for surface finding
-"zetaSparam"    :   "3",               #  0 basic param (is zetaS 0 no bulk), 1,2,3
-"nx"            :   "101",             # number of cells in X direction
-"ny"            :   "101",             # number of cells in Y direction
-"nz"            :   "51",              # number of cells in eta direction
+"zetaSparam"    :   "0",               #  0 basic param (is zetaS 0 no bulk), 1,2,3
+"nx"            :   "201",             # number of cells in X direction
+"ny"            :   "201",             # number of cells in Y direction
+"nz"            :   "101",              # number of cells in eta direction
 "xmin"          :   "-20.0",           # coordinate of the first cell
 "xmax"          :   "20.0",            # coordinate of the last cell
 "ymin"          :   "-20.0",
