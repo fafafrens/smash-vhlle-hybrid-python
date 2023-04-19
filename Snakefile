@@ -31,6 +31,7 @@ rule run_hybrid:
     output:
         file_name = "done_hyb_{etaS}_{eta0}_{ecrit}_{sigEta}_{eff}.txt"
     run:
+        sNN_value = "200"
         Nevents = "100"
         centrality = "20-30"
         icfile = "/home/palermo/superMC/rhic200-20-30%_10kevents.data"
@@ -42,7 +43,7 @@ rule run_hybrid:
 
         # modify the parameter values and create the output directory
         copy_params = hl.modify_dictionary("params_dict",etaS=etaS_value, e_crit=ecrit_value)
-        copy_superMC_setup = hl.modify_dictionary("supermc_dict",eta0=eta0_value, sigmaeta=sigEta_value, eff=eff_value )
+        copy_superMC_setup = hl.modify_dictionary("supermc_dict",eta0=eta0_value, sigmaeta=sigEta_value, eff=eff_value, sNN=sNN_value )
         name_maindir = hl.name_folder(param=copy_params,smc=copy_superMC_setup,prefix="cent"+centrality)
         path_tree = hl.init(name_maindir)
         
