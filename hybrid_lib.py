@@ -53,11 +53,11 @@ supermc_dict = {
 	"sNN"      : "5020",
 	"eta0"     : "3.5", # midrapidity plateau
   	"sigmaeta" : "1.4", # diffuseness of rapidity profile
-  	"w"	   : "0.4",
+  	"w"	       : "0.4",
   	"eff"	   : "0.15",
-        "etaB"     : "3.5",
-        "sigmaIN"  : "2.0",
-        "sigmaOUT" : "0.1"
+    "etaB"     : "3.5",
+    "sigmaIN"  : "2.0",
+    "sigmaOUT" : "0.1"
 }
 
 input_dict = {
@@ -340,8 +340,8 @@ def snake_rule_files(dict):
     keys = dict.keys()
     for key in keys:
         temp_list = []
-        for value in dict[k]:
-            temp_list.append(key+"_"+value+"_")
+        for value in dict[key]:
+            temp_list.append(key+"?"+value+"?")
         output = add_string_lists(output,temp_list)
     
     for i in range(len(output)):
@@ -355,8 +355,8 @@ def input_format(dict):
     Return the expected format for output files as expected in Snakemake
     '''
     string = ""
-    for k,value in dict.items():
-        string += k+"_{"+k+"}_"
+    for k in dict.keys():
+        string += k+"?{"+k+"}?"
     string = string[:-1] +".txt"
     return string
 
@@ -364,11 +364,11 @@ def unpack_string_to_dictionary(string):
     '''
     Gets a dictionary from a string in order to print it to the snakemake file
     '''
-    dummy = string.replace(".","_")
-    dummy = dummy.replace("{","")
+    string = string[:-4] #remove the .txt from the string
+    dummy = string.replace("{","")
     dummy = dummy.replace("}","")
-    unpacked = dummy.split("_")
-    unpacked = unpacked[:-1]
+    unpacked = dummy.split("?")
+    
     keys = unpacked[::2]
     values = unpacked[1::2]
     dictionary = {}
