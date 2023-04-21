@@ -54,7 +54,10 @@ supermc_dict = {
 	"eta0"     : "3.5", # midrapidity plateau
   	"sigmaeta" : "1.4", # diffuseness of rapidity profile
   	"w"	   : "0.4",
-  	"eff"	   : "0.15" 
+  	"eff"	   : "0.15",
+        "etaB"     : "3.5",
+        "sigmaIN"  : "2.0",
+        "sigmaOUT" : "0.1"
 }
 
 input_dict = {
