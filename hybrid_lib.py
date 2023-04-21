@@ -95,6 +95,7 @@ smash_yaml_config={
 def modify_dictionary(dict_name,**kwargs):
         """
         Function used to change the entries of the dictionary called "dict_name". kwargs are of the form "key=value".
+        Error message if key is not in the dictionary
         """
         if dict_name == "params_dict":
                 dict_copy = params_dict.copy()
@@ -105,36 +106,32 @@ def modify_dictionary(dict_name,**kwargs):
         if dict_name == "input_dict":
                 dict_copy = input_dict.copy()
         if dict_name == "sampler_config":
-                dict_copy = input_dict.copy()
+                dict_copy = sampler_config.copy()
         if dict_name == "smash_yaml_config":
-                dict_copy = input_dict.copy()
+                dict_copy = smash_yaml_config.copy()
 
         for key, value in kwargs.items():
                 if key in dict_copy.keys():
                         dict_copy[key] = value
-                else:
+                        
+        return dict_copy
+
+
+def modify_dictionary_logger(dict_name,**kwargs):
+        """
+        Function used to change the entries of the dictionary called "dict_name". kwargs are of the form "key=value".
+        Error message if key is not in the dictionary
+        """
+        
+        dict_copy = modify_dictionary(dict_name, **kwargs)
+
+        for key, value in kwargs.items():
+                if key not in dict_copy.keys():
                         print("ERROR: the key you want to modify is not in this dictionary!")
                         return
                         
         return dict_copy
 
-# def params_modify(**kwargs):
-# 	dict2 = params_dict.copy()
-# 	for v, k in kwargs.items():
-# 		dict2[v] = k
-# 	return dict2
-
-# def glissando_modify(**kwargs):
-#         dict2 = glissando_dict.copy()
-#         for v, k in kwargs.items():
-#                 dict2[v] = k
-#         return dict2
-
-# def supermc_modify(**kwargs):
-#         dict2 = supermc_dict.copy()
-#         for v, k in kwargs.items():
-#                 dict2[v] = k
-#         return dict2
 
 def get_input(input_file):
         d = {}
@@ -318,39 +315,63 @@ def name_folder(prefix="", param=params_dict, gliss=glissando_dict,
     
     return name
 
-def custom_call(icfile,centrality,Nevents = 1000,**kwargs):
-        copy_params = params_modify()
-        copy_gliss_setup = glissando_modify()
-        for k,v in kwargs.items():
-                if k in copy_params:
-                        print(k,v)
-                        copy_params[k] = v
-                elif k in copy_gliss_setup:
-                        copy_gliss_setup[k] = v
-                        print(k,v)
-                else:
-                        print("Invalid key!")
-                        return 0 
-        name_maindir = name_path_tree(copy_params,copy_gliss_setup,centrality)
+def add_string_lists(str_list1, str_list2):
+    ''' 
+    Combines the two lists of strings in every possible way: ["a","b"]+["c","d"]=["ac","ad","bc","bd"]
+    if one of the lists is empty returns the non empty one.
+    '''
+    sum = []
+    if(str_list1 == []):
+        return str_list2
+    if (str_list2 == []):
+        return str_list1
 
-        path_tree = init(name_maindir)
-                                
-        path_params_file = path_tree["hydro"] + "/params"
-        path_glissando_file = path_tree["hydro"] + "/gliss"
-        print_dict_to_file(copy_params,path_params_file)
-        print_dict_to_file(copy_gliss_setup,path_glissando_file)
-        run_hybrid(path_params_file,path_glissando_file,icfile,name_maindir)
-        analysis_and_plots(path_tree,str(Nevents))                  
-        subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"],path_tree["after"],path_tree["pol"]])
-	
+    for s1 in str_list1:
+        for s2 in str_list2:
+            sum.append(s1+s2)
+    
+    return sum
 
+def snake_rule_files(dict):
+    '''
+    From a dictionary {key:[values]} where key and values are strings returns a list of strings with the expected format for Snakemake
+    ''' 
+    output = []
+    keys = dict.keys()
+    for key in keys:
+        temp_list = []
+        for value in dict[k]:
+            temp_list.append(key+"_"+value+"_")
+        output = add_string_lists(output,temp_list)
+    
+    for i in range(len(output)):
+        filename = output[i] 
+        output[i] = filename[:-1]+".txt"
 
+    return output
+       
+def input_format(dict):
+    '''
+    Return the expected format for output files as expected in Snakemake
+    '''
+    string = ""
+    for k,value in dict.items():
+        string += k+"_{"+k+"}_"
+    string = string[:-1] +".txt"
+    return string
 
-
-
-
-
-
-
-
-
+def unpack_string_to_dictionary(string):
+    '''
+    Gets a dictionary from a string in order to print it to the snakemake file
+    '''
+    dummy = string.replace(".","_")
+    dummy = dummy.replace("{","")
+    dummy = dummy.replace("}","")
+    unpacked = dummy.split("_")
+    unpacked = unpacked[:-1]
+    keys = unpacked[::2]
+    values = unpacked[1::2]
+    dictionary = {}
+    for k,v in zip(keys,values):
+            dictionary[k]=v
+    return dictionary
