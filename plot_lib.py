@@ -61,7 +61,7 @@ def pseudorapidity_distribution_simple(particle_list_file, selection_criterion,*
     return pseudorapidity_distribution(px,py,pz,number_events, **kwargs)
 
 
-def pt_distribution(px,py,pz,nevents,pt_max, pt_min=0, number_of_bins=50):
+def pt_distribution(px,py,pz,nevents,pt_max=3, pt_min=0, number_of_bins=50):
     '''
     Returns a tuple with (bin_centers,<1/(2\pi p_T) dN/dpt>) 
     The output of this function can be easily plotted unpacking with *:
@@ -118,7 +118,7 @@ def nth_flow_pt(px,py,pz,n_order=2,pt_min = 0,pt_max=3,number_of_bins=10):
     '''
     Return pt-bins and v_n flow of order n=n_order. Reaction plane angle is assumed to be zero (you can check this with complex_flow_pt).
     '''
-    bin_centers, nth_flow, dummy_sin = complex_flow_pt(px,py,pz,n_order,pt_max,pt_min = pt_min,number_of_bins=number_of_bins)
+    bin_centers, nth_flow, dummy_sin = complex_flow_pt(px,py,pz,n_order,pt_min=pt_min,pt_max = pt_max,number_of_bins=number_of_bins)
     return bin_centers, nth_flow
 
 def nth_flow_pt_simple(particle_list_file, selection_criterion,**kwargs):
@@ -152,7 +152,7 @@ def complex_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return complex_flow_eta(px,py,pz,**kwargs)
  
-def nth_flow_eta(px,py,pz,n_order=2,eta_min=-1, eta_max=1,number_of_bins=20):
+def nth_flow_eta(px,py,pz,n_order=1,eta_min=-1, eta_max=1,number_of_bins=10):
     '''
     Return eta-bins and v_n flow of order n=n_order. Reaction plane angle is assumed to be zero (you can check this with complex_flow_eta).
     '''
