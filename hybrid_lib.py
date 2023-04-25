@@ -2,12 +2,6 @@ import subprocess
 import os 
 import yaml
 
-# param="file di configurazione iuri"
-# sytem=" striga oscura di iurii"
-# icfile="file condizioni iniziali oscure di iurri"
-# outputfolder="abbasta chiaro"
-# n_event=100
-
 params_dict = {
 "outputDir"     :   "none",
 "eosType"       :   "0",           
@@ -53,11 +47,11 @@ supermc_dict = {
 	"sNN"      : "5020",
 	"eta0"     : "3.5", # midrapidity plateau
   	"sigmaeta" : "1.4", # diffuseness of rapidity profile
-  	"w"	       : "0.4",
+  	"w"	   : "0.4",
   	"eff"	   : "0.15",
-    "etaB"     : "3.5",
-    "sigmaIN"  : "2.0",
-    "sigmaOUT" : "0.1"
+        "etaB"     : "3.5",
+        "sigmaIN"  : "2.0",
+        "sigmaOUT" : "0.1"
 }
 
 input_dict = {
@@ -83,7 +77,7 @@ smash_yaml_config={
         'General': {'Modus': 'List',
         'Time_Step_Mode': 'None',
         'Delta_Time': 0.1,
-        'End_Time': 1000.0,
+        'End_Time': 30000.0,
         'Randomseed': -1,
         'Nevents': 100},
         'Output': {'Particles': {'Format': ['Binary', 'Oscar2013']}},
