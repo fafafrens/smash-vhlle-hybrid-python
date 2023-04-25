@@ -52,9 +52,9 @@ def pseudorapidity_distribution(px,py,pz,nevents,eta_min=-4,eta_max=4, number_of
 
     return bin_centers,dN_deta
 
-def pseudorapidity_distribution(particle_list_file, selection_criterion,**kwargs):
+def pseudorapidity_distribution_simple(particle_list_file, selection_criterion,**kwargs):
     '''
-    Overhead of the previous function with simpler arguments
+    Overload of the previous function with simpler arguments
     '''
     number_events = number_of_events(particle_list_file)
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
@@ -79,9 +79,9 @@ def pt_distribution(px,py,pz,nevents,pt_max, pt_min=0, number_of_bins=50):
 
     return bin_centers,dN_dpt
 
-def pt_distribution(particle_list_file, selection_criterion,**kwargs):
+def pt_distribution_simple(particle_list_file, selection_criterion,**kwargs):
     '''
-    Overhead of the previous function with simpler arguments
+    Overload of the previous function with simpler arguments
     '''
     number_events = number_of_events(particle_list_file)
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
@@ -107,9 +107,9 @@ def complex_flow_pt(px,py,pz,n_order=2,pt_min = 0,pt_max=3,number_of_bins=10):
 
     return bin_centers, nth_cos, nth_sin
 
-def complex_flow_pt(particle_list_file, selection_criterion,**kwargs):
+def complex_flow_pt_simple(particle_list_file, selection_criterion,**kwargs):
     '''
-    Overhead of the previous function with simpler arguments
+    Overload of the previous function with simpler arguments
     '''
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return complex_flow_pt(px,py,pz,**kwargs)
@@ -121,9 +121,9 @@ def nth_flow_pt(px,py,pz,n_order=2,pt_min = 0,pt_max=3,number_of_bins=10):
     bin_centers, nth_flow, dummy_sin = complex_flow_pt(px,py,pz,n_order,pt_max,pt_min = pt_min,number_of_bins=number_of_bins)
     return bin_centers, nth_flow
 
-def nth_flow_pt(particle_list_file, selection_criterion,**kwargs):
+def nth_flow_pt_simple(particle_list_file, selection_criterion,**kwargs):
     '''
-    Overhead of the previous function with simpler arguments
+    Overload of the previous function with simpler arguments
     '''
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return nth_flow_pt(px,py,pz,**kwargs)
@@ -145,9 +145,9 @@ def complex_flow_eta(px,py,pz,n_order=2,eta_min=-1, eta_max=1,number_of_bins=20)
 
     return bin_centers, nth_cos, nth_sin
 
-def complex_flow_eta(particle_list_file, selection_criterion,**kwargs):
+def complex_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
     '''
-    Overhead of the previous function with simpler arguments
+    Overload of the previous function with simpler arguments
     '''
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return complex_flow_eta(px,py,pz,**kwargs)
@@ -159,9 +159,9 @@ def nth_flow_eta(px,py,pz,n_order=2,eta_min=-1, eta_max=1,number_of_bins=20):
     bin_centers, nth_flow, dummy_sin = complex_flow_eta(px,py,pz,n_order,eta_min=eta_min,eta_max=eta_max,number_of_bins=number_of_bins)
     return bin_centers, nth_flow
 
-def nth_flow_eta(particle_list_file, selection_criterion,**kwargs):
+def nth_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
     '''
-    Overhead of the previous function with simpler arguments
+    Overload of the previous function with simpler arguments
     '''
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return nth_flow_eta(px,py,pz,**kwargs)
