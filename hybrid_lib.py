@@ -127,7 +127,10 @@ def modify_dictionary_logger(dict_name,**kwargs):
         return dict_copy
 
 
-def get_input(input_file):
+def read_dictionary(input_file):
+        '''
+        Returns a dictionary, reading it from the file input_file
+        '''
         d = {}
         with open(input_file) as f:
                 lines = (line.rstrip() for line in f) # All lines including the blank ones
@@ -140,14 +143,25 @@ def get_input(input_file):
         return d
 
 def init(output_main):
+        '''
+        Creates the folder ./output_main as well as its subfolders /Hydro, /Sampler ...
+        Returns a dictionary containing the information about the directories structure which can be used to redirect the input and output
+        e.g. :
+                path_tree = init("example") ##full dictionary containing the paths
+                path_tree["hydro"] ##path to the Hydro folder, i.e. "example/Hydro"
+        
+        If the folders already exist they are not modified, and the function returns the dictionary of the path tree
+
+        '''
         path_tree_dict={}
         hydropath = "./"+output_main + "/Hydro"
         samplerpath = "./"+output_main + "/Sampler"
         afterpath = "./"+output_main + "/Afterburner"
         plotspath = "./"+output_main + "/Plots"
         polpath = "./"+output_main + "/Polarization"
-        keys = ["hydro","sampler","after","plots","pol"]
-        values = [hydropath,samplerpath,afterpath,plotspath,polpath]
+
+        keys = ["hydro","sampler","after","plots","pol"] #These are the keys of the path_tree dictionary
+        values = [hydropath,samplerpath,afterpath,plotspath,polpath] #These are the paths associated to each key
         try:
                 os.mkdir(output_main)
                 for i,j in zip(keys,values):
@@ -160,6 +174,9 @@ def init(output_main):
                 return path_tree_dict
 
 def run_vhlle(param,system,icfile,path_tree):
+        '''
+        Function used to run vhlle.
+        '''
         try:
                 subprocess.run(["./hlle_visc", "-system", system, "-params",param,"-ISinput",icfile,"-outputDir",path_tree["hydro"]])
         except:
@@ -167,24 +184,33 @@ def run_vhlle(param,system,icfile,path_tree):
 
 
 def print_dict_to_file(dict,output):
+    '''
+    Prints the dictionary "dict" to the file "output"... as the name of the function suggests :D
+    '''
     with open(output, 'w') as f: 
         for key, value in dict.items(): 
             f.write('%s    %s\n' % (key, value))
 
-def read_param(param_file):
-        d = {}
-        with open(param_file) as f:
-                lines = (line.rstrip() for line in f) # All lines including the blank ones
-                lines = (line for line in lines if line) # Non-blank lines
-                for line in lines:
-                        if line:
-                                key = line.split()[0]
-                                val =  line.split()[1]
-                                d[key] = val
-        return d
+# def read_param(param_file):
+#         d = {}
+#         with open(param_file) as f:
+#                 lines = (line.rstrip() for line in f) # All lines including the blank ones
+#                 lines = (line for line in lines if line) # Non-blank lines
+#                 for line in lines:
+#                         if line:
+#                                 key = line.split()[0]
+#                                 val =  line.split()[1]
+#                                 d[key] = val
+#         return d
 
-def write_sampler_config(param,path_tree,Nevent=sampler_config.copy()["number_of_events"],dict_sampler_config=sampler_config.copy()): 
-        dict = read_param(param)
+
+def write_sampler_config(param,path_tree,Nevent): 
+        '''
+        Given the "param" file used by vhlle writes the corresponding sampler file for Nevent events in the folder path_tree["sampler"] (see the function init())
+        '''
+        dict = read_dictionary(param)
+        dict_sampler_config = sampler_config.copy()
+        
         dict_sampler_config["ecrit"] = dict["e_crit"]
         dict_sampler_config["surface"]=path_tree["hydro"]+"/freezeout.dat"
         dict_sampler_config["spectra_dir"]=path_tree["sampler"]
@@ -198,6 +224,9 @@ def write_sampler_config(param,path_tree,Nevent=sampler_config.copy()["number_of
         return dict_sampler_config
          
 def run_sampler(path_tree):
+        '''
+        Runs the sampler
+        '''
         try:
                 samconfig = path_tree["sampler"]+"/sampler_config"
                 subprocess.run(["./sampler", "events","1",samconfig])
@@ -205,17 +234,24 @@ def run_sampler(path_tree):
                 print("ERROR: no sampler_config found!")
         return 1
 
-def write_afterburn_config(path_tree,Nevent=sampler_config.copy()["number_of_events"],dict_afterb_config=smash_yaml_config.copy()): 
-        dict_afterb_config["Modi"]["List"]["File_Directory"]=path_tree["sampler"]
-        dict_afterb_config["General"]["Nevents"]=Nevent      
+def write_afterburn_config(path_tree,Nevent):
+        '''
+        Writes the afterburner configuration file
+        '''
+        dict_afterb_config = smash_yaml_config.copy() 
+        dict_afterb_config["Modi"]["List"]["File_Directory"] = path_tree["sampler"]
+        dict_afterb_config["General"]["Nevents"] = Nevent      
         with open(path_tree["after"]+"/smash_afterburner.yaml","w") as file:
                 yaml.dump(dict_afterb_config,file)
-        #rename particle_lists.oscar, because!
+        #rename particle_lists.oscar
         if os.path.exists(path_tree["sampler"]+"/particle_lists.oscar"):
                 os.rename(path_tree["sampler"]+"/particle_lists.oscar",path_tree["sampler"]+"/sampling0")
         return dict_afterb_config
 
 def run_smash(path_tree):
+        '''
+        Runs smash taking the input from the path_tree["sampler"] folder and saving the output in path_tree["after"]
+        '''
         try:
                 yaml = path_tree["after"]+"/smash_afterburner.yaml"
                 subprocess.run(["./smash", "-i",yaml,"-o",path_tree["after"]])
@@ -224,16 +260,23 @@ def run_smash(path_tree):
         return 1
 
 def run_pol(path_tree):
+        #####
+        #       BETA VERSION    
+        #####
         try: 
                 beta = path_tree["hydro"]+"/beta.dat" 
-                subprocess.Popen(["./calc",beta, path_tree["pol"]+"/primary"])
-                subprocess.Popen(["./calc",beta, path_tree["pol"]+"/lambda_from_sigma0","3212","22"])
-                subprocess.Popen(["./calc",beta, path_tree["pol"]+"/lambda_from_sigmastar","3224","211"])
+                subprocess.run(["./calc",beta, path_tree["pol"]+"/primary"])
+                # subprocess.Popen(["./calc",beta, path_tree["pol"]+"/lambda_from_sigma0","3212","22"])
+                # subprocess.Popen(["./calc",beta, path_tree["pol"]+"/lambda_from_sigmastar","3224","211"])
         except:
                 print("ERROR: no beta.dat found!")
         return 1
 
-def run_hybrid(param, system, icfile ,outputfolder,Nevent=sampler_config.copy()["number_of_events"]):
+def run_hybrid(param, system, icfile ,outputfolder,Nevent):
+        '''
+        Given the param file, the initial condition file and the system parameters of vhlle, runs the full hybrid chain saving the outputs in the outputfolder path_tree
+        Nevent events are sampled by samsh at freeze-out
+        '''
         path_tree=init(outputfolder)
         try:
                 run_vhlle(param,system,icfile,path_tree)
@@ -246,6 +289,13 @@ def run_hybrid(param, system, icfile ,outputfolder,Nevent=sampler_config.copy()[
                 print("ERROR: something bad happened :(")
 
 def analysis_and_plots(path_tree,Nevents):
+                '''
+                Runs the smash analysis scripts
+                ####
+                #       TO CHANGE IN THE FUTURE
+                ####
+                '''
+
         #try:
                 particle_file = path_tree["after"]+"/particles_binary.bin"
                 subprocess.run(["python3","mult_and_spectra.py",
@@ -277,10 +327,10 @@ def get_different_key_value(dictionary1,dictionary2):
 
 def name_folder(prefix="", param=params_dict, gliss=glissando_dict, 
                     smc=supermc_dict, sampl=sampler_config, smash=smash_yaml_config):
-    """
+    '''
     Name a folder according to the unique parameters that are different from the default dictionaries.
-    "prefix" is an optional prefix that can be used to specify e.g. the centrality, number of averaged events for the IC...
-    """
+    "prefix" is an optional prefix that can be used to specify e.g. the centrality, number of averaged events for the IC, the day of the week, your favourite colour...
+    '''
     name = ""
     if(prefix != ""):
         name += prefix + "_"
