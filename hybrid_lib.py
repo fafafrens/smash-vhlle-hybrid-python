@@ -89,7 +89,7 @@ smash_yaml_config={
 def modify_dictionary(dict_name,**kwargs):
         """
         Function used to change the entries of the dictionary called "dict_name". kwargs are of the form "key=value".
-        Error message if key is not in the dictionary
+        If the key is not in the dictionary nothing happens
         """
         if dict_name == "params_dict":
                 dict_copy = params_dict.copy()
