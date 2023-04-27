@@ -3,31 +3,31 @@ import os
 import yaml
 
 params_dict = {
-"outputDir"     :   "none",
-"eosType"       :   "0",           
-"etaS"          :   "0.12",            #  eta/s value
-"zetaS"         :   "0.0",             #  zeta/s, bulk viscosity
-"e_crit"        :   "0.515",           #  criterion for surface finding
-"zetaSparam"    :   "0",               #  0 basic param (is zetaS 0 no bulk), 1,2,3
-"nx"            :   "201",             # number of cells in X direction
-"ny"            :   "201",             # number of cells in Y direction
-"nz"            :   "101",              # number of cells in eta direction
-"xmin"          :   "-20.0",           # coordinate of the first cell
-"xmax"          :   "20.0",            # coordinate of the last cell
-"ymin"          :   "-20.0",
-"ymax"          :   "20.0",
-"etamin"        :   "-10.0",
-"etamax"        :   "10.0",
-"icModel"       :   "8",
-"glauberVar"    :   "1",       	      #not used
-"icInputFile"   :   "ic/glissando/sources.RHIC.20-50.dat",
-"s0ScaleFactor" :   "53.55",	      #not used in glissando (glauber + rapidity)
-"epsilon0"      :   "30.0",	      #not used in glissando (glauber)
-"impactPar"     :   "7.0",	      #not used in glissando (glauber)
-"alpha"         :   "0.0",             #NEVER used
-"tau0"          :   "1.0",  	      # starting proper time
-"tauMax"        :   "15.0",  	      # proper time to stop hydro
-"dtau"          :   "0.1"   	      # timestep
+        "outputDir"     :   "none",
+        "eosType"       :   "0",           
+        "etaS"          :   "0.12",            #  eta/s value
+        "zetaS"         :   "0.0",             #  zeta/s, bulk viscosity
+        "e_crit"        :   "0.515",           #  criterion for surface finding
+        "zetaSparam"    :   "0",               #  0 basic param (is zetaS 0 no bulk), 1,2,3
+        "nx"            :   "201",             # number of cells in X direction
+        "ny"            :   "201",             # number of cells in Y direction
+        "nz"            :   "101",              # number of cells in eta direction
+        "xmin"          :   "-20.0",           # coordinate of the first cell
+        "xmax"          :   "20.0",            # coordinate of the last cell
+        "ymin"          :   "-20.0",
+        "ymax"          :   "20.0",
+        "etamin"        :   "-10.0",
+        "etamax"        :   "10.0",
+        "icModel"       :   "8",
+        "glauberVar"    :   "1",       	      #not used
+        "icInputFile"   :   "ic/glissando/sources.RHIC.20-50.dat",
+        "s0ScaleFactor" :   "53.55",	      #not used in glissando (glauber + rapidity)
+        "epsilon0"      :   "30.0",	      #not used in glissando (glauber)
+        "impactPar"     :   "7.0",	      #not used in glissando (glauber)
+        "alpha"         :   "0.0",             #NEVER used
+        "tau0"          :   "1.0",  	      # starting proper time
+        "tauMax"        :   "15.0",  	      # proper time to stop hydro
+        "dtau"          :   "0.1"   	      # timestep
 }
 
 
@@ -79,7 +79,7 @@ smash_yaml_config={
         'Delta_Time': "0.1",
         'End_Time': "30000.0",
         'Randomseed': "-1",
-        'Nevents': "100"},
+        'Nevents': "1000"},
         'Output': {'Particles': {'Format': ['Binary', 'Oscar2013']}},
         'Modi': {'List': {'File_Directory': '../build/',
         'File_Prefix': 'sampling',
