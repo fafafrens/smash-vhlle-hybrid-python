@@ -89,7 +89,7 @@ rule run_hybrid:
         Nevents = "200"
         centrality = "20-30"
         icfile = "/home/palermo/superMC/rhic200-20-30%_10kevents.data"
-        input_dictionary = hl.get_input(input.file_input)
+        input_dictionary = hl.read_dictionary(input.file_input)
 
         # modify the parameter values and create the output directory
         copy_params = hl.modify_dictionary("params_dict",**input_dictionary)
