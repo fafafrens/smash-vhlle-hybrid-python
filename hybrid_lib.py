@@ -59,31 +59,31 @@ input_dict = {
         "system" : "vhlle collision system (-system)",
         "icinput" : "initial condition file in vhlle (-ISinput)",
         "outputfolder" : "master output folder, base of the path three",
-        "Nevents" : 100
+        "Nevents" : "1000"
 }
 
 sampler_config = {
         "surface"          : "/path/to/freezeout/surface",
         "spectra_dir"      : " /path/to/output",
-        "number_of_events" : 100,
-        "weakContribution" : 0,
-        "shear"            : 1,
-        "ecrit"            : 0.5
+        "number_of_events" : "1000",
+        "weakContribution" : "0",
+        "shear"            : "1",
+        "ecrit"            : "0.5"
 }
 
 smash_yaml_config={
-        'Version': 1.8,
+        'Version': "1.8",
         'Logging': {'default': 'INFO'},
         'General': {'Modus': 'List',
         'Time_Step_Mode': 'None',
-        'Delta_Time': 0.1,
-        'End_Time': 30000.0,
-        'Randomseed': -1,
-        'Nevents': 100},
+        'Delta_Time': "0.1",
+        'End_Time': "30000.0",
+        'Randomseed': "-1",
+        'Nevents': "100"},
         'Output': {'Particles': {'Format': ['Binary', 'Oscar2013']}},
         'Modi': {'List': {'File_Directory': '../build/',
         'File_Prefix': 'sampling',
-        'Shift_Id': 0}}
+        'Shift_Id': "0"}}
 }
 
 def modify_dictionary(dict_name,**kwargs):
@@ -259,7 +259,7 @@ def run_smash(path_tree):
                 print("ERROR: no smash_afterburner.yaml found!")
         return 1
 
-def run_pol(path_tree):
+def run_polarization(path_tree):
         #####
         #       BETA VERSION    
         #####
