@@ -165,3 +165,30 @@ def nth_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
     '''
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return nth_flow_eta(px,py,pz,**kwargs)
+
+def Pz_polarization(polarization_file,vorticity=False, spin_to_polarization=2):
+    '''
+    Plots the z component of polarization from the particlizationCalc output.
+    If vorticity = True plots only the contribution of the vorticity
+    spin_to_polarization converts the mean spin formula to polarization. Particles are assumet to be S=1/2 by default.
+    '''
+    filename =  np.loadtxt(polarization_file, unpack=True)
+    pT = filename[0]
+    phi = filename[1]
+    dndp = filename[2]
+    dimP=np.size(np.unique(pT))
+    dimPhi=np.size(np.unique(phi))
+    if(vorticity):
+        Pizu = filename[6]
+    else:
+        Pizu = filename[6] + filename[10]  
+
+    Pz = Pizu.reshape((dimP,dimPhi))
+    dNdP = dndp.reshape((dimP,dimPhi))
+    Pt = pT.reshape((dimP,dimPhi))
+    mean_spin = np.trapz(Pz*Pt,x=np.unique(pT),axis=0)
+    spectra = np.trapz(dNdP*Pt,x=np.unique(pT),axis=0)
+
+    pol = spin_to_polarization*mean_spin/spectra
+
+    return np.unique(phi), pol
