@@ -168,7 +168,7 @@ def nth_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
 
 def Pz_polarization(polarization_file,vorticity=False, spin_to_polarization=2):
     '''
-    Plots the z component of polarization from the particlizationCalc output.
+    Computes the z component of polarization as a function of phi from the particlizationCalc output.
     If vorticity = True plots only the contribution of the vorticity
     spin_to_polarization converts the mean spin formula to polarization. Particles are assumet to be S=1/2 by default.
     '''
@@ -192,3 +192,43 @@ def Pz_polarization(polarization_file,vorticity=False, spin_to_polarization=2):
     pol = spin_to_polarization*mean_spin/spectra
 
     return np.unique(phi), pol
+
+def Pj_polarization(polarization_file,vorticity=False, mass=1.115683 ,spin_to_polarization=2):
+    '''
+    Computes the component of polarization along J as a function of phi from the particlizationCalc output.
+    If vorticity = True plots only the contribution of the vorticity
+    spin_to_polarization converts the mean spin formula to polarization. 
+    The particle at hand is assumed to be a Lambda by default.
+    '''
+    filename =  np.loadtxt(polarization_file, unpack=True)
+    pT = filename[0]
+    phi = filename[1]
+    dndp = filename[2]
+    px = pT * np.cos(phi)
+    py = pT * np.sin(phi)
+    dimP=np.size(np.unique(pT))
+    dimPhi=np.size(np.unique(phi))
+    if(vorticity):
+        Pixu = filename[4]
+        Piyu = filename[5]
+    else:
+        Pixu = filename[4] + filename[8]
+        Piyu = filename[5] + filename[9]  
+
+    #boost to the Particle rest frame
+    Pix_rf = np.zeros(len(Piyu))
+    Piy_rf = np.zeros(len(Piyu))
+    for i in range(len(Piyu)):
+        e = np.sqrt(mass*mass + pT[i]*pT[i])
+        Pix_rf[i] = Pixu[i] - (Pixu[i]*px[i] + Piyu[i]*py[i])/(e*(e+mass))*px[i]  
+        Piy_rf[i] = Piyu[i] - (Pixu[i]*px[i] + Piyu[i]*py[i])/(e*(e+mass))*py[i]
+        
+    Py = Piy_rf.reshape((dimP,dimPhi))
+    dNdP = dndp.reshape((dimP,dimPhi))
+    Pt = pT.reshape((dimP,dimPhi))
+    mean_spin = np.trapz(Py*Pt,x=np.unique(pT),axis=0)
+    spectra = np.trapz(dNdP*Pt,x=np.unique(pT),axis=0)
+
+    pol = spin_to_polarization*mean_spin/spectra
+
+    return np.unique(phi), -pol #The experimental y axis is opposite to the angular momentum
