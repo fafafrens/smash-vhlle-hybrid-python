@@ -12,3 +12,7 @@ print("Friendly reminder: have you compiled the correct branches? If so, good fo
 shutil.copy(f"{work_directory}/smash/build/smash",target_directory)
 shutil.copy(f"{work_directory}/super-vhlle/hlle_visc",target_directory)
 shutil.copy(f"{work_directory}/smash-hadron-sampler/build/sampler",target_directory)
+shutil.copy("./hybrid_lib.py",target_directory)
+shutil.copy("./Snakefile",target_directory)
+shutil.copy("./Snakefile_polarization",target_directory)
+shutil.copy("./plot_lib.py",target_directory)
