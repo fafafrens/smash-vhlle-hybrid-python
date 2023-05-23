@@ -154,11 +154,11 @@ def init(output_main):
 
         '''
         path_tree_dict={}
-        hydropath = "./"+output_main + "/Hydro"
-        samplerpath = "./"+output_main + "/Sampler"
-        afterpath = "./"+output_main + "/Afterburner"
-        plotspath = "./"+output_main + "/Plots"
-        polpath = "./"+output_main + "/Polarization"
+        hydropath = f"./{output_main}/Hydro"
+        samplerpath = f"./{output_main}/Sampler"
+        afterpath = f"./{output_main}/Afterburner"
+        plotspath = f"./{output_main}/Plots"
+        polpath = f"./{output_main}/Polarization"
 
         keys = ["hydro","sampler","after","plots","pol"] #These are the keys of the path_tree dictionary
         values = [hydropath,samplerpath,afterpath,plotspath,polpath] #These are the paths associated to each key
@@ -191,18 +191,6 @@ def print_dict_to_file(dict,output):
         for key, value in dict.items(): 
             f.write('%s    %s\n' % (key, value))
 
-# def read_param(param_file):
-#         d = {}
-#         with open(param_file) as f:
-#                 lines = (line.rstrip() for line in f) # All lines including the blank ones
-#                 lines = (line for line in lines if line) # Non-blank lines
-#                 for line in lines:
-#                         if line:
-#                                 key = line.split()[0]
-#                                 val =  line.split()[1]
-#                                 d[key] = val
-#         return d
-
 
 def write_sampler_config(param,path_tree,Nevent): 
         '''
@@ -225,11 +213,14 @@ def write_sampler_config(param,path_tree,Nevent):
          
 def run_sampler(path_tree):
         '''
-        Runs the sampler
+        Runs the sampler and renames the output as expected from smash
         '''
         try:
                 samconfig = path_tree["sampler"]+"/sampler_config"
                 subprocess.run(["./sampler", "events","1",samconfig])
+                #rename particle_lists.oscar
+                if os.path.exists(path_tree["sampler"]+"/particle_lists.oscar"):
+                        os.rename(path_tree["sampler"]+"/particle_lists.oscar",path_tree["sampler"]+"/sampling0")
         except:
                 print("ERROR: no sampler_config found!")
         return 1
@@ -243,9 +234,6 @@ def write_afterburn_config(path_tree,Nevent):
         dict_afterb_config["General"]["Nevents"] = Nevent      
         with open(path_tree["after"]+"/smash_afterburner.yaml","w") as file:
                 yaml.dump(dict_afterb_config,file)
-        #rename particle_lists.oscar
-        if os.path.exists(path_tree["sampler"]+"/particle_lists.oscar"):
-                os.rename(path_tree["sampler"]+"/particle_lists.oscar",path_tree["sampler"]+"/sampling0")
         return dict_afterb_config
 
 def run_smash(path_tree):
@@ -257,6 +245,23 @@ def run_smash(path_tree):
                 subprocess.run(["./smash", "-i",yaml,"-o",path_tree["after"]])
         except:
                 print("ERROR: no smash_afterburner.yaml found!")
+        return 1
+
+def run_afterburner(path_tree):
+        '''
+        Runs the sampler and the afterburner. The sampler_config file is assumed to exist already
+        '''
+        try:
+                path_sampler_config = path_tree["sampler"]+"/sampler_config"
+                sampler_config_dict = read_dictionary(path_sampler_config)
+                Nevent = sampler_config_dict["number_of_events"]
+                
+                run_sampler(path_tree)
+                write_afterburn_config(path_tree,Nevent)
+                run_smash(path_tree)
+                
+        except:
+                print("ERROR: there was a problem running sampler and afterburner.")
         return 1
 
 def run_polarization(path_tree):

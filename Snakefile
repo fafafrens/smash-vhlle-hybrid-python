@@ -96,7 +96,7 @@ rule run_afterburn:
             hl.run_smash(path_tree)
 
 #            hl.analysis_and_plots(path_tree, Nevents)
-            subprocess.run(["rm -r ",path_tree["hydro"],path_tree["sampler"]])      
+            subprocess.run(["rm","-r ",path_tree["hydro"],path_tree["sampler"]])      
             with open(output.file_hybrid,"w") as f:
                 f.write("ammammao")
         
@@ -128,10 +128,6 @@ rule run_vhlle:
         # run the hybrid model and perform analysis    
         hl.run_vhlle(path_params_file,path_supermc_file,icfile,path_tree)
         hl.write_sampler_config(path_params_file,path_tree,Nevents)
-        # hl.run_polarization(path_tree)
-        #hl.run_sampler(path_tree)
-        #hl.write_afterburn_config(path_tree,Nevents)
-        #hl.run_smash(path_tree)
 	
         with open(output.file_hydro,"w") as f:
             f.write(name_maindir)

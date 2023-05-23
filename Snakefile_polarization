@@ -90,10 +90,11 @@ rule run_afterburn:
             path_tree = hl.init(name_maindir)
             
             hl.run_sampler(path_tree)
+            hl.write_afterburn_config(path_tree,Nevents)
             hl.run_smash(path_tree)
 
             hl.analysis_and_plots(path_tree, Nevents)
-            #subprocess.run(["rm -r ",path_tree["hydro"],path_tree["sampler"],path_tree["after"]])      
+            #subprocess.run(["rm ","-r ",path_tree["hydro"],path_tree["sampler"],path_tree["after"]])      
             with open(output.file_hybrid,"w") as f:
                 f.write("ammammao")
         
@@ -112,7 +113,6 @@ rule run_vhlle:
         # modify the parameter values and create the output directory
         copy_params = hl.modify_dictionary("params_dict",**input_dictionary)
         copy_superMC_setup = hl.modify_dictionary("supermc_dict",**input_dictionary, **supermc_dict_value)
-        copy_sampler = hl.modify_dictionary("sampler_config",**sampler_dict_value)
 
         name_maindir = hl.name_folder(param=copy_params,smc=copy_superMC_setup,prefix="baryon"+"cent"+centrality)
         path_tree = hl.init(name_maindir)
@@ -125,9 +125,7 @@ rule run_vhlle:
 
         # run the hybrid model and perform analysis    
         hl.run_vhlle(path_params_file,path_supermc_file,icfile,path_tree)
-
         hl.write_sampler_config(path_params_file,path_tree,Nevents)
-        hl.write_afterburn_config(path_tree,Nevents)
         
         with open(output.file_hydro,"w") as f:
             f.write(name_maindir)
