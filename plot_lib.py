@@ -13,7 +13,7 @@ def number_of_events(particle_list_file):
             nevents = nevents + 1
     return nevents
 
-def momentum_in_particle_selection(particle_list_file, criterion_string):
+def momentum_in_particle_selection(particle_list_file, criterion_string, midrapidity=0):
     '''
     Returns a tuple corresponding to (E,px,py,pz) given a particle_list file and a selection criterion.
     Contravariant indices are implied.
@@ -25,17 +25,43 @@ def momentum_in_particle_selection(particle_list_file, criterion_string):
     pz = data[8]
     charge = data[11]
     pdg_id = data[9]
-    if(criterion_string == "charged"):
-        print("analysing charged particles")
-        return E[(charge!=0)], px[(charge!=0)], py[(charge!=0)] , pz[(charge!=0)]
+
+    if(midrapidity):
+        print("Filtering particles in the pseudorapidity region |eta| < ", midrapidity)
+        eta = 0.5*np.log((np.sqrt(px*px+py*py+pz*pz)+pz)/(np.sqrt(px*px+py*py+pz*pz)-pz))
+        E = E[abs(eta)<midrapidity]
+        px = px[abs(eta)<midrapidity]
+        py = py[abs(eta)<midrapidity]
+        pz = pz[abs(eta)<midrapidity]
+        charge = charge[abs(eta)<midrapidity]
+        pdg_id = pdg_id[abs(eta)<midrapidity]
     else:
+        print("No rapidity cut selected...")
+        
+        
+
+    if(criterion_string == "charged"):
+        print("Filtering charged particles...")
+        return E[(charge!=0)], px[(charge!=0)], py[(charge!=0)] , pz[(charge!=0)]
+    
+    elif(criterion_string == "all"):
+        print("Momenta of all particles...")
+        return E, px, py , pz
+
+    elif(str(criterion_string).lstrip("-").isdigit()):
+        print("Checking pdg_id...")
         pdg_particle = int(criterion_string)
         if pdg_particle in pdg_id:
+           print("Filtering pdg_id = ",pdg_particle)
            return E[(pdg_id==pdg_particle)], px[(pdg_id==pdg_particle)], py[(pdg_id==pdg_particle)] , pz[(pdg_id==pdg_particle)]
         else:
-            print("The pdg_id ", pdg_particle, " doesn't correspond to any particle produced!")
+            print("Alas, the pdg_id ", pdg_particle, " doesn't correspond to any particle produced!")
             print("Error!")
             exit(1)
+    else:
+        print("Unkonwn selection criterion!")
+        print("Error!")
+        exit(1)
 
 def pseudorapidity_distribution(px,py,pz,nevents,eta_min=-4,eta_max=4, number_of_bins=50):
     '''
@@ -232,3 +258,76 @@ def Pj_polarization(polarization_file,vorticity=False, mass=1.115683 ,spin_to_po
     pol = spin_to_polarization*mean_spin/spectra
 
     return np.unique(phi), -pol #The experimental y axis is opposite to the angular momentum
+
+def chi2_pseudorapidity_distribution(data_file_txt, particle_list_file, criterion_string,**kwargs):
+    data_and_errors = np.loadtxt(data_file_txt,unpack=True)
+    data_x = data_and_errors[0]
+    data_Dx = data_and_errors[1]
+    data_y = data_and_errors[2]
+    data_Dy = data_and_errors[3]
+
+    etabins = np.linspace(data_x[0]-data_Dx[0],data_x[-1]+data_Dx[-1],len(data_x)+1) #createing the edges for the histogram so that the midpoint coincide with the data
+ 
+    nevents = number_of_events(particle_list_file)
+    E,px,py,pz = momentum_in_particle_selection(particle_list_file, criterion_string, **kwargs)
+    
+    eta = 0.5*np.log((np.sqrt(px*px+py*py+pz*pz)+pz)/(np.sqrt(px*px+py*py+pz*pz)-pz))
+    N_in_bin, bin_edges = np.histogram(eta, bins=etabins)
+    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+    bin_width = bin_centers[1] - bin_centers[0]
+    dN_deta = N_in_bin/(bin_width*nevents)
+
+    chi2 = np.sum((dN_deta-data_y)**2/data_Dy**2)
+
+    return chi2
+
+def chi2_ptspectrum(data_file_txt, particle_list_file, criterion_string,**kwargs):
+    '''
+    Computes the chi2 given a txt datafile and a particle list file. Selection criterion are applied.
+    '''
+    #Beware of the pi factors...
+    data_and_errors = np.loadtxt(data_file_txt,unpack=True)
+    data_x = data_and_errors[0]
+    data_Dx = data_and_errors[1]
+    data_y = data_and_errors[2]
+    data_Dy = data_and_errors[3]
+
+    pt_bins = np.linspace(data_x[0]-data_Dx[0],data_x[-1]+data_Dx[-1],len(data_x)+1) #createing the edges for the histogram so that the midpoint coincide with the data
+ 
+    nevents = number_of_events(particle_list_file)
+    E,px,py,pz = momentum_in_particle_selection(particle_list_file, criterion_string, **kwargs)
+
+    pt = np.sqrt(px**2+py**2)
+    
+    N_in_bin, bin_edges = np.histogram(pt, bins=pt_bins)
+    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+    bin_width = bin_centers[1] - bin_centers[0]
+    dN_dpt = N_in_bin/(bin_width*nevents*bin_centers*(2*np.pi))
+    
+    chi2 = np.sum((dN_dpt-data_y)**2/data_Dy**2)
+
+    return chi2
+
+def chi2_v2(data_file_txt, particle_list_file, criterion_string,**kwargs):
+    '''
+    Computes the chi2 given a txt datafile and a particle list file. Selection criterion are applied.
+    '''
+    #Beware of the pi factors...
+    data_and_errors = np.loadtxt(data_file_txt,unpack=True)
+    data_x = data_and_errors[0]
+    data_Dx = data_and_errors[1]
+    data_y = data_and_errors[2]
+    data_Dy = data_and_errors[3]
+
+    E,px,py,pz = momentum_in_particle_selection(particle_list_file, criterion_string, **kwargs)
+
+    pt_bins = np.linspace(data_x[0]-data_Dx[0],data_x[-1]+data_Dx[-1],len(data_x)+1)
+    pt = np.sqrt(px*px+py*py)
+    phi = np.arctan2(py,px)
+
+    cos, bin_edges = np.histogram(pt,bins=pt_bins,weights=np.cos(2*phi))
+    v2 = cos/(np.histogram(pt,bins=pt_bins)[0])
+    
+    chi2 = np.sum((v2-data_y)**2/data_Dy**2)
+
+    return chi2
