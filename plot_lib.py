@@ -223,7 +223,7 @@ def nth_flow_y(E,px,py,pz,n_order=1,y_min=-1, y_max=1,number_of_bins=10):
     bin_centers, nth_flow, dummy_sin = complex_flow_y(E,px,py,pz,n_order,y_min=y_min,y_max=y_max,number_of_bins=number_of_bins)
     return bin_centers, nth_flow
 
-def nth_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
+def nth_flow_y_simple(particle_list_file, selection_criterion,**kwargs):
     '''
     Overload of the previous function with simpler arguments
     '''
