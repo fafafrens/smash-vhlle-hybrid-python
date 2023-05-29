@@ -192,6 +192,44 @@ def nth_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return nth_flow_eta(px,py,pz,**kwargs)
 
+def complex_flow_y(E,px,py,pz,n_order=2,y_min=-1, y_max=1,number_of_bins=20):
+    '''
+    Return eta-bins and complex flow information for the n_order flow harmonics.
+
+    '''
+    y_bins = np.linspace(y_min,y_max,number_of_bins)
+    phi = np.arctan2(py,px)
+    y = 0.5*np.log((E+pz)/(E-pz))
+    cos, bin_edges = np.histogram(y,bins=y_bins,weights=np.cos(n_order*phi))
+    sin, bin_edges = np.histogram(y,bins=y_bins,weights=np.sin(n_order*phi))
+
+    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+    nth_cos = cos/(np.histogram(y,bins=y_bins)[0])
+    nth_sin = sin/(np.histogram(y,bins=y_bins)[0])
+
+    return bin_centers, nth_cos, nth_sin
+
+def complex_flow_y_simple(particle_list_file, selection_criterion,**kwargs):
+    '''
+    Overload of the previous function with simpler arguments
+    '''
+    E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
+    return complex_flow_y(E,px,py,pz,**kwargs)
+ 
+def nth_flow_y(E,px,py,pz,n_order=1,y_min=-1, y_max=1,number_of_bins=10):
+    '''
+    Return eta-bins and v_n flow of order n=n_order. Reaction plane angle is assumed to be zero (you can check this with complex_flow_eta).
+    '''
+    bin_centers, nth_flow, dummy_sin = complex_flow_y(E,px,py,pz,n_order,y_min=y_min,y_max=y_max,number_of_bins=number_of_bins)
+    return bin_centers, nth_flow
+
+def nth_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
+    '''
+    Overload of the previous function with simpler arguments
+    '''
+    E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
+    return nth_flow_y(E,px,py,pz,**kwargs)
+
 def Pz_polarization(polarization_file,vorticity=False, spin_to_polarization=2):
     '''
     Computes the z component of polarization as a function of phi from the particlizationCalc output.
