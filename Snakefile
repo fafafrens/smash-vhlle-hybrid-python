@@ -27,7 +27,7 @@ supermc_dict_value = {
 	"sigmaOUT" : "0.1"
 }
 
-Nevents = "1000"
+Nevents = "200"
 
 input_format = hl.input_format(loopable_dict)
 format_string = snakemake_folder + input_format
@@ -86,6 +86,7 @@ rule run_afterburn:
             file_hydro = done_hydro_format
         output:
             file_hybrid = done_hyb_format,
+        threads: 16
         run:
             with open(input.file_hydro,"r") as f:
                 name_maindir = f.read()
