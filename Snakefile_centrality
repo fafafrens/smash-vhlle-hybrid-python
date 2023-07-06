@@ -1,0 +1,125 @@
+import hybrid_lib as hl
+import os
+
+#we create a directory to store the temporary snakemake files
+snakemake_folder = "tmp_snakemake"  
+if not os.path.exists(snakemake_folder):
+    os.makedirs(snakemake_folder)
+snakemake_folder = snakemake_folder +"/"
+
+#static values for superMC dctionary
+supermc_dict_value = {
+	"sNN"      : "5020",
+	"eff"	   : "0.15",
+	"etaB"     : "3.5",
+	"sigmaIN"  : "2.0",
+	"sigmaOUT" : "0.1",
+    "eta0"     : "2.6",
+    "sigmaeta" : "1.1",
+    "w"        : "0.13"
+}
+
+Nevents = "10000"
+
+initial_state_location = "/home/palermo/superMC/"
+
+initial_state_format = initial_state_location+"lhc_{cent}_20k.data"
+done_hydro_format = snakemake_folder + "done?hydro?{cent}"
+done_hyb_format = snakemake_folder + "done?hyb?{cent}"
+
+list_cent = ["0-5","5-10","10-20","20-30","30-40","40-50"]
+done_hydro_list = [snakemake_folder + f"done?hydro?{cent}" for cent in list_cent]
+# # done_pol_list = [snakemake_folder + f"done?pol?" + name for name in list_names]
+done_hyb_list = [snakemake_folder + f"done?hyb?{cent}" for cent in list_cent]
+
+# dir = "/home/grossi/share_palermo/rhic"
+# file_list=os.listdir(dir)
+
+# input_ic_file=[dir+'/'+f for f in file_list ]
+
+# input_ic_format="/home/grossi/share_palermo/rhic/wounded_rhic_{cent}%.data"
+
+rule all:
+    input:
+        done_hydro_list,
+        # input_ic_file,
+        # done_pol_list,
+        done_hyb_list
+    output:
+        "chain_done.txt"
+    shell:
+        "echo done && echo done > {output}"
+
+#computes polarization on the freeze-out hypersurface once the hydro stage is over
+# rule polarization:
+#     input:
+#         file_input = format_string,
+#         file_hydro = done_hydro_format
+#     output:
+#         output_pol = done_pol_format
+#     run:
+#         with open(input.file_hydro,"r") as f:
+#             name_maindir = f.read()
+#         path_tree = hl.init(name_maindir)
+
+#         hl.run_polarization(path_tree)
+#         with open(output.output_pol,"w") as f:
+#             f.write("ammammao")
+
+rule run_afterburn:
+        input:
+            file_hydro = done_hydro_format
+        output:
+            file_hybrid = done_hyb_format
+        run:
+            with open(input.file_hydro,"r") as f:
+                name_maindir = f.read()
+            path_tree = hl.init(name_maindir)
+            
+            hl.run_sampler(path_tree)
+            hl.write_afterburn_config(path_tree,Nevents)
+            hl.run_smash(path_tree)
+
+#            hl.analysis_and_plots(path_tree, Nevents)
+            subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"]])      
+            with open(output.file_hybrid,"w") as f:
+                f.write("ammammao")
+        
+# run the hybrid model for each combination of etaS and eta0
+rule run_vhlle:
+    input:
+	      initial_state = initial_state_format
+    output:
+          file_hydro = done_hydro_format,
+    run:
+        icfile = input.initial_state 
+        centrality = wildcards.cent
+
+        input_dictionary = {'etaS' : "0.08",
+                            'e_crit' : "0.5",
+                            'tauMax' :   "30.0"
+                            }
+
+        # modify the parameter values and create the output directory
+        copy_params = hl.modify_dictionary("params_dict",**input_dictionary)
+        copy_superMC_setup = hl.modify_dictionary("supermc_dict",**input_dictionary, **supermc_dict_value)
+        
+
+        name_maindir = hl.name_folder(param=copy_params,smc=copy_superMC_setup,prefix="winner_centrality_"+centrality)
+        path_tree = hl.init(name_maindir)
+        
+        # write the modified parameter values to files
+        path_params_file = path_tree["hydro"] + "/params"
+        path_supermc_file = path_tree["hydro"] + "/supermc_file"
+        hl.print_dict_to_file(copy_params, path_params_file)
+        hl.print_dict_to_file(copy_superMC_setup, path_supermc_file)
+
+        # run the hybrid model and perform analysis    
+        hl.run_vhlle(path_params_file,path_supermc_file,icfile,path_tree)
+        hl.write_sampler_config(path_params_file,path_tree,Nevents)
+	
+        with open(output.file_hydro,"w") as f:
+            f.write(name_maindir)
+
+
+
