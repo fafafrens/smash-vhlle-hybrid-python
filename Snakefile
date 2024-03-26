@@ -7,7 +7,7 @@ if not os.path.exists(snakemake_folder):
     os.makedirs(snakemake_folder)
 snakemake_folder = snakemake_folder +"/"
 
-# define a list of values for etaS and eta0
+# define a list of values to loop over if you want to test different setups
 loopable_dict = { 
     #WARNING: USE THE SAME ENTRIES AS DEFINED IN THE DEFAULT DICTIONARIES!!!!
     #WARNING 2: THE CHARACTER '?' IS USED BY CONVENTION IN THE TEMPORARY SNAKEMAKE FILES: DO NOT USE IT IN THE DICTIONARIES!!!
@@ -27,31 +27,28 @@ supermc_dict_value = {
 	"sigmaOUT" : "0.1"
 }
 
+#Number of events sampled from the particlization hypersup
 Nevents = "200"
 
 input_format = hl.input_format(loopable_dict)
 format_string = snakemake_folder + input_format
 done_hydro_format = snakemake_folder + "done?hydro?"+input_format
-# done_pol_format = snakemake_folder + "done?pol?"+input_format
 done_hyb_format = snakemake_folder + "done?hyb?"+input_format
 
 list_names = hl.snake_rule_files(loopable_dict)
 
 input_list_rule_all = [snakemake_folder + name for name in list_names]
 done_hydro_list = [snakemake_folder + f"done?hydro?" + name for name in list_names]
-# done_pol_list = [snakemake_folder + f"done?pol?" + name for name in list_names]
 done_hyb_list = [snakemake_folder + f"done?hyb?" + name for name in list_names]
 
 rule all:
     input:
         input_list_rule_all,
         done_hydro_list,
-        # done_pol_list,
         done_hyb_list
     output:
         "chain_done.txt"
     shell:
-        #rm {input} &&
         "rm {input} && echo done > {output}"
 
 # generate output files with a single value for etaS and eta0
@@ -64,29 +61,12 @@ rule gen_input:
         dictionary = hl.unpack_string_to_dictionary(input_parameter_string)
         hl.print_dict_to_file(dictionary,output.fileout) 
 
-#computes polarization on the freeze-out hypersurface once the hydro stage is over
-# rule polarization:
-#     input:
-#         file_input = format_string,
-#         file_hydro = done_hydro_format
-#     output:
-#         output_pol = done_pol_format
-#     run:
-#         with open(input.file_hydro,"r") as f:
-#             name_maindir = f.read()
-#         path_tree = hl.init(name_maindir)
-
-#         hl.run_polarization(path_tree)
-#         with open(output.output_pol,"w") as f:
-#             f.write("ammammao")
-
 rule run_afterburn:
         input:
             file_input = format_string,
             file_hydro = done_hydro_format
         output:
-            file_hybrid = done_hyb_format,
-        threads: 16
+            file_hybrid = done_hyb_format
         run:
             with open(input.file_hydro,"r") as f:
                 name_maindir = f.read()
@@ -96,8 +76,8 @@ rule run_afterburn:
             hl.write_afterburn_config(path_tree,Nevents)
             hl.run_smash(path_tree)
 
-#            hl.analysis_and_plots(path_tree, Nevents)
-            subprocess.run(["rm","-r ",path_tree["hydro"],path_tree["sampler"]])      
+
+            #subprocess.run(["rm","-r ",path_tree["hydro"],path_tree["sampler"]])       ##UNCOMMENT IF YOU WANT TO DELATE THESE FOLDERS     
             with open(output.file_hybrid,"w") as f:
                 f.write("ammammao")
         

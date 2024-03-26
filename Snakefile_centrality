@@ -29,42 +29,16 @@ done_hyb_format = snakemake_folder + "done?hyb?{cent}"
 
 list_cent = ["0-5","5-10","10-20","20-30","30-40","40-50"]
 done_hydro_list = [snakemake_folder + f"done?hydro?{cent}" for cent in list_cent]
-# # done_pol_list = [snakemake_folder + f"done?pol?" + name for name in list_names]
 done_hyb_list = [snakemake_folder + f"done?hyb?{cent}" for cent in list_cent]
-
-# dir = "/home/grossi/share_palermo/rhic"
-# file_list=os.listdir(dir)
-
-# input_ic_file=[dir+'/'+f for f in file_list ]
-
-# input_ic_format="/home/grossi/share_palermo/rhic/wounded_rhic_{cent}%.data"
 
 rule all:
     input:
         done_hydro_list,
-        # input_ic_file,
-        # done_pol_list,
         done_hyb_list
     output:
         "chain_done.txt"
     shell:
         "echo done && echo done > {output}"
-
-#computes polarization on the freeze-out hypersurface once the hydro stage is over
-# rule polarization:
-#     input:
-#         file_input = format_string,
-#         file_hydro = done_hydro_format
-#     output:
-#         output_pol = done_pol_format
-#     run:
-#         with open(input.file_hydro,"r") as f:
-#             name_maindir = f.read()
-#         path_tree = hl.init(name_maindir)
-
-#         hl.run_polarization(path_tree)
-#         with open(output.output_pol,"w") as f:
-#             f.write("ammammao")
 
 rule run_afterburn:
         input:
@@ -80,8 +54,7 @@ rule run_afterburn:
             hl.write_afterburn_config(path_tree,Nevents)
             hl.run_smash(path_tree)
 
-#            hl.analysis_and_plots(path_tree, Nevents)
-            subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"]])      
+            # subprocess.run(["rm","-r",path_tree["hydro"],path_tree["sampler"]])       ##UNCOMMENT IF YOU WANT TO DELATE THESE FOLDERS     
             with open(output.file_hybrid,"w") as f:
                 f.write("ammammao")
         
