@@ -87,7 +87,7 @@ def pseudorapidity_distribution_simple(particle_list_file, selection_criterion,*
     return pseudorapidity_distribution(px,py,pz,number_events, **kwargs)
 
 
-def pt_distribution(px,py,pz,nevents,pt_max=3, pt_min=0, number_of_bins=50):
+def pt_distribution(px,py,pz,nevents,pt_max=3, pt_min=0, eta_cut=0.5, number_of_bins=50):
     '''
     Returns a tuple with (bin_centers,<1/(2\pi p_T) dN/dpt>) 
     The output of this function can be easily plotted unpacking with *:
@@ -97,7 +97,7 @@ def pt_distribution(px,py,pz,nevents,pt_max=3, pt_min=0, number_of_bins=50):
     eta = 0.5*np.log((np.sqrt(px*px+py*py+pz*pz)+pz)/(np.sqrt(px*px+py*py+pz*pz)-pz))
     pt_bins = np.linspace(pt_min,pt_max,number_of_bins)
     #selecting particles at midrapidity
-    pt = pt[(np.fabs(eta)<0.5)]
+    pt = pt[(np.fabs(eta)<eta_cut)]
     N_in_bin, bin_edges = np.histogram(pt, bins=pt_bins)
     bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
     bin_width = bin_centers[1] - bin_centers[0]
