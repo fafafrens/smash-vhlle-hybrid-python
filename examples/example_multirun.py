@@ -39,6 +39,6 @@ for EtaS in values_etaS:
 				hl.print_dict_to_file(copy_params,path_params_file) ##save new params dict to file for vhlle to read
 				hl.print_dict_to_file(copy_superMC_setup,path_supermc_file) ##save new supermc dict to file for vhlle to read
 
-				hl.run_hybrid(path_params_file,path_supermc_file,icfile,name_maindir) ##runs the hbryd model in the path tree
+				hl.run_hybrid(path_params_file,path_supermc_file,icfile,name_maindir) ##runs the hybrid model in the path tree
 				
 				# subprocess.run(["rm -r ",path_tree["hydro"],path_tree["sampler"],path_tree["after"]]) ##UNCOMMENT if you want to remove these folders

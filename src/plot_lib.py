@@ -1,10 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+##############################################################################
+### USE TO ANALYSE SMASH OUTPUT
+### THE OUTPUT OF MOST ANALYSIS FUNCTIONS ARE TUPLE, AND CAN BE PLOTTED
+### EASILY BY UNPACKING WITH "*". 
+### FOR EXAMPLE: plt.plot(*pseudorapidity_distribution, ... )
+##############################################################################
+
 def number_of_events(particle_list_file):
     '''
     This function checks the output of smash and returns the number of events sampled. 
-    The path to particle_list.oscar is used as argument
+    particle_list_file is the path to particle_list.oscar
     '''
     nevents = 0
     all_lines = open(particle_list_file, 'r')
@@ -16,7 +23,10 @@ def number_of_events(particle_list_file):
 def momentum_in_particle_selection(particle_list_file, criterion_string, midrapidity=0):
     '''
     Returns a tuple corresponding to (E,px,py,pz) given a particle_list file and a selection criterion.
-    Contravariant indices are implied.
+    Contravariant indices are implied. E,px,py,pz are lists.
+    To sample in |\eta|<value use midrapidity=value in the argument.
+    the selection criterion is assigner by criterion_string=criterion.
+    Implemented criteria are: all, charged, pdg_id
     '''
     data = np.loadtxt(particle_list_file, unpack=True)
     E = data[5]
@@ -39,7 +49,6 @@ def momentum_in_particle_selection(particle_list_file, criterion_string, midrapi
         print("No rapidity cut selected...")
         
         
-
     if(criterion_string == "charged"):
         print("Filtering charged particles...")
         return E[(charge!=0)], px[(charge!=0)], py[(charge!=0)] , pz[(charge!=0)]
@@ -63,11 +72,13 @@ def momentum_in_particle_selection(particle_list_file, criterion_string, midrapi
         print("Error!")
         exit(1)
 
+
+### FUNCTIONS FOR PSEUDORAPIDITY DISTRIBUTION
 def pseudorapidity_distribution(px,py,pz,nevents,eta_min=-4,eta_max=4, number_of_bins=50):
     '''
-    Returns a tuple with (bin_centers,<dN/deta>)
-    The output of this function can be easily plotted unpacking with *:
-        plt.plot(*pseudorapidity_distribution, ... )
+    Given the list of momenta px,py,pz and the number of SMASH events,
+    returns a tuple with (bin_centers,<dN/deta>).
+    Rapidity cuts and number of bins can be adjusted in the input.
     '''
     eta_bins = np.linspace(eta_min, eta_max, number_of_bins)
     eta = 0.5*np.log((np.sqrt(px*px+py*py+pz*pz)+pz)/(np.sqrt(px*px+py*py+pz*pz)-pz))
@@ -80,24 +91,24 @@ def pseudorapidity_distribution(px,py,pz,nevents,eta_min=-4,eta_max=4, number_of
 
 def pseudorapidity_distribution_simple(particle_list_file, selection_criterion,**kwargs):
     '''
-    Overload of the previous function with simpler arguments
+    Overload of the previous function with simpler arguments.
     '''
     number_events = number_of_events(particle_list_file)
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return pseudorapidity_distribution(px,py,pz,number_events, **kwargs)
 
-
-def pt_distribution(px,py,pz,nevents,pt_max=3, pt_min=0, number_of_bins=50):
+### FUNCTIONS FOR PT DISTRIBUTION
+def pt_distribution(px,py,pz,nevents,pt_max=3, pt_min=0, number_of_bins=50, etacut=0.5):
     '''
-    Returns a tuple with (bin_centers,<1/(2\pi p_T) dN/dpt>) 
-    The output of this function can be easily plotted unpacking with *:
-        plt.plot(*pt_distribution, ... )
+    Given the list of momenta px,py,pz and the number of SMASH events,
+    returns a tuple with (bin_centers,<1/(2\pi p_T) dN/dpt>) 
+    pt cuts and number of bins can be adjusted in the input
     '''
     pt = np.sqrt(px**2+py**2)
     eta = 0.5*np.log((np.sqrt(px*px+py*py+pz*pz)+pz)/(np.sqrt(px*px+py*py+pz*pz)-pz))
     pt_bins = np.linspace(pt_min,pt_max,number_of_bins)
     #selecting particles at midrapidity
-    pt = pt[(np.fabs(eta)<0.5)]
+    pt = pt[(np.fabs(eta)<etacut)]
     N_in_bin, bin_edges = np.histogram(pt, bins=pt_bins)
     bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
     bin_width = bin_centers[1] - bin_centers[0]
@@ -113,17 +124,19 @@ def pt_distribution_simple(particle_list_file, selection_criterion,**kwargs):
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return pt_distribution(px,py,pz,number_events,**kwargs)
 
-def complex_flow_pt(px,py,pz,n_order=2,pt_min = 0,pt_max=3,number_of_bins=10):
+### FUNCTIONS FOR FLOWS
+def complex_flow_pt(px,py,pz,n_order=2,pt_min = 0,pt_max=3,number_of_bins=10,etacut=0.5):
     '''
-    Return pt-bins and complex flow information for the n_order flow harmonics.
+    Return pt-bins and cos and sin information for the n_order flow harmonics.
+    cuts and number of bins can be adjusted
     '''
     pt_bins = np.linspace(pt_min,pt_max,number_of_bins)
     pt = np.sqrt(px*px+py*py)
     phi = np.arctan2(py,px)
     eta = 0.5*np.log((np.sqrt(px*px+py*py+pz*pz)+pz)/(np.sqrt(px*px+py*py+pz*pz)-pz))
     #selecting particles at midrapidity
-    pt = pt[(np.fabs(eta)<0.5)]
-    phi = phi[(np.fabs(eta)<0.5)]
+    pt = pt[(np.fabs(eta)<etacut)]
+    phi = phi[(np.fabs(eta)<etacut)]
     cos, bin_edges = np.histogram(pt,bins=pt_bins,weights=np.cos(n_order*phi))
     sin, bin_edges = np.histogram(pt,bins=pt_bins,weights=np.sin(n_order*phi))
 
@@ -140,11 +153,11 @@ def complex_flow_pt_simple(particle_list_file, selection_criterion,**kwargs):
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return complex_flow_pt(px,py,pz,**kwargs)
  
-def nth_flow_pt(px,py,pz,n_order=2,pt_min = 0,pt_max=3,number_of_bins=10):
+def nth_flow_pt(px,py,pz,n_order=2,pt_min = 0,pt_max=3,number_of_bins=10,etacut=0.5):
     '''
     Return pt-bins and v_n flow of order n=n_order. Reaction plane angle is assumed to be zero (you can check this with complex_flow_pt).
     '''
-    bin_centers, nth_flow, dummy_sin = complex_flow_pt(px,py,pz,n_order,pt_min=pt_min,pt_max = pt_max,number_of_bins=number_of_bins)
+    bin_centers, nth_flow, dummy_sin = complex_flow_pt(px,py,pz,n_order,pt_min=pt_min,pt_max = pt_max,number_of_bins=number_of_bins,etacut=etacut)
     return bin_centers, nth_flow
 
 def nth_flow_pt_simple(particle_list_file, selection_criterion,**kwargs):
@@ -157,7 +170,6 @@ def nth_flow_pt_simple(particle_list_file, selection_criterion,**kwargs):
 def complex_flow_eta(px,py,pz,n_order=2,eta_min=-1, eta_max=1,number_of_bins=20):
     '''
     Return eta-bins and complex flow information for the n_order flow harmonics.
-
     '''
     eta_bins = np.linspace(eta_min,eta_max,number_of_bins)
     phi = np.arctan2(py,px)
@@ -194,8 +206,7 @@ def nth_flow_eta_simple(particle_list_file, selection_criterion,**kwargs):
 
 def complex_flow_y(E,px,py,pz,n_order=2,y_min=-1, y_max=1,number_of_bins=20):
     '''
-    Return eta-bins and complex flow information for the n_order flow harmonics.
-
+    Return y-bins and complex flow information for the n_order flow harmonics.
     '''
     y_bins = np.linspace(y_min,y_max,number_of_bins)
     phi = np.arctan2(py,px)
@@ -229,143 +240,3 @@ def nth_flow_y_simple(particle_list_file, selection_criterion,**kwargs):
     '''
     E,px,py,pz = momentum_in_particle_selection(particle_list_file, selection_criterion)
     return nth_flow_y(E,px,py,pz,**kwargs)
-
-def Pz_polarization(polarization_file,vorticity=False, spin_to_polarization=2):
-    '''
-    Computes the z component of polarization as a function of phi from the particlizationCalc output.
-    If vorticity = True plots only the contribution of the vorticity
-    spin_to_polarization converts the mean spin formula to polarization. Particles are assumet to be S=1/2 by default.
-    '''
-    filename =  np.loadtxt(polarization_file, unpack=True)
-    pT = filename[0]
-    phi = filename[1]
-    dndp = filename[2]
-    dimP=np.size(np.unique(pT))
-    dimPhi=np.size(np.unique(phi))
-    if(vorticity):
-        Pizu = filename[6]
-    else:
-        Pizu = filename[6] + filename[10]  
-
-    Pz = Pizu.reshape((dimP,dimPhi))
-    dNdP = dndp.reshape((dimP,dimPhi))
-    Pt = pT.reshape((dimP,dimPhi))
-    mean_spin = np.trapz(Pz*Pt,x=np.unique(pT),axis=0)
-    spectra = np.trapz(dNdP*Pt,x=np.unique(pT),axis=0)
-
-    pol = spin_to_polarization*mean_spin/spectra
-
-    return np.unique(phi), pol
-
-def Pj_polarization(polarization_file,vorticity=False, mass=1.115683 ,spin_to_polarization=2):
-    '''
-    Computes the component of polarization along J as a function of phi from the particlizationCalc output.
-    If vorticity = True plots only the contribution of the vorticity
-    spin_to_polarization converts the mean spin formula to polarization. 
-    The particle at hand is assumed to be a Lambda by default.
-    '''
-    filename =  np.loadtxt(polarization_file, unpack=True)
-    pT = filename[0]
-    phi = filename[1]
-    dndp = filename[2]
-    px = pT * np.cos(phi)
-    py = pT * np.sin(phi)
-    dimP=np.size(np.unique(pT))
-    dimPhi=np.size(np.unique(phi))
-    if(vorticity):
-        Pixu = filename[4]
-        Piyu = filename[5]
-    else:
-        Pixu = filename[4] + filename[8]
-        Piyu = filename[5] + filename[9]  
-
-    #boost to the Particle rest frame
-    Pix_rf = np.zeros(len(Piyu))
-    Piy_rf = np.zeros(len(Piyu))
-    for i in range(len(Piyu)):
-        e = np.sqrt(mass*mass + pT[i]*pT[i])
-        Pix_rf[i] = Pixu[i] - (Pixu[i]*px[i] + Piyu[i]*py[i])/(e*(e+mass))*px[i]  
-        Piy_rf[i] = Piyu[i] - (Pixu[i]*px[i] + Piyu[i]*py[i])/(e*(e+mass))*py[i]
-        
-    Py = Piy_rf.reshape((dimP,dimPhi))
-    dNdP = dndp.reshape((dimP,dimPhi))
-    Pt = pT.reshape((dimP,dimPhi))
-    mean_spin = np.trapz(Py*Pt,x=np.unique(pT),axis=0)
-    spectra = np.trapz(dNdP*Pt,x=np.unique(pT),axis=0)
-
-    pol = spin_to_polarization*mean_spin/spectra
-
-    return np.unique(phi), -pol #The experimental y axis is opposite to the angular momentum
-
-def chi2_pseudorapidity_distribution(data_file_txt, particle_list_file, criterion_string,**kwargs):
-    data_and_errors = np.loadtxt(data_file_txt,unpack=True)
-    data_x = data_and_errors[0]
-    data_Dx = data_and_errors[1]
-    data_y = data_and_errors[2]
-    data_Dy = data_and_errors[3]
-
-    etabins = np.linspace(data_x[0]-data_Dx[0],data_x[-1]+data_Dx[-1],len(data_x)+1) #createing the edges for the histogram so that the midpoint coincide with the data
- 
-    nevents = number_of_events(particle_list_file)
-    E,px,py,pz = momentum_in_particle_selection(particle_list_file, criterion_string, **kwargs)
-    
-    eta = 0.5*np.log((np.sqrt(px*px+py*py+pz*pz)+pz)/(np.sqrt(px*px+py*py+pz*pz)-pz))
-    N_in_bin, bin_edges = np.histogram(eta, bins=etabins)
-    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-    bin_width = bin_centers[1] - bin_centers[0]
-    dN_deta = N_in_bin/(bin_width*nevents)
-
-    chi2 = np.sum((dN_deta-data_y)**2/data_Dy**2)
-
-    return chi2
-
-def chi2_ptspectrum(data_file_txt, particle_list_file, criterion_string,**kwargs):
-    '''
-    Computes the chi2 given a txt datafile and a particle list file. Selection criterion are applied.
-    '''
-    #Beware of the pi factors...
-    data_and_errors = np.loadtxt(data_file_txt,unpack=True)
-    data_x = data_and_errors[0]
-    data_Dx = data_and_errors[1]
-    data_y = data_and_errors[2]
-    data_Dy = data_and_errors[3]
-
-    pt_bins = np.linspace(data_x[0]-data_Dx[0],data_x[-1]+data_Dx[-1],len(data_x)+1) #createing the edges for the histogram so that the midpoint coincide with the data
- 
-    nevents = number_of_events(particle_list_file)
-    E,px,py,pz = momentum_in_particle_selection(particle_list_file, criterion_string, **kwargs)
-
-    pt = np.sqrt(px**2+py**2)
-    
-    N_in_bin, bin_edges = np.histogram(pt, bins=pt_bins)
-    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-    bin_width = bin_centers[1] - bin_centers[0]
-    dN_dpt = N_in_bin/(bin_width*nevents*bin_centers*(2*np.pi))
-    
-    chi2 = np.sum((dN_dpt-data_y)**2/data_Dy**2)
-
-    return chi2
-
-def chi2_v2(data_file_txt, particle_list_file, criterion_string,**kwargs):
-    '''
-    Computes the chi2 given a txt datafile and a particle list file. Selection criterion are applied.
-    '''
-    #Beware of the pi factors...
-    data_and_errors = np.loadtxt(data_file_txt,unpack=True)
-    data_x = data_and_errors[0]
-    data_Dx = data_and_errors[1]
-    data_y = data_and_errors[2]
-    data_Dy = data_and_errors[3]
-
-    E,px,py,pz = momentum_in_particle_selection(particle_list_file, criterion_string, **kwargs)
-
-    pt_bins = np.linspace(data_x[0]-data_Dx[0],data_x[-1]+data_Dx[-1],len(data_x)+1)
-    pt = np.sqrt(px*px+py*py)
-    phi = np.arctan2(py,px)
-
-    cos, bin_edges = np.histogram(pt,bins=pt_bins,weights=np.cos(2*phi))
-    v2 = cos/(np.histogram(pt,bins=pt_bins)[0])
-    
-    chi2 = np.sum((v2-data_y)**2/data_Dy**2)
-
-    return chi2
