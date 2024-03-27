@@ -1,0 +1,16 @@
+rule all:
+    input:
+        "snakemake_example.txt"
+
+
+rule example:
+    input:
+        "input_{wild}.txt"
+    output:
+        "snakemake_{wild}.txt"
+    run:
+        wildcard = wildcards.wild
+        print(f"\n the wildcard is the string: {wildcard}\n")
+        
+        with open(output[0],"w") as f:
+            f.write("done!")
