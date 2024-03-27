@@ -1,6 +1,8 @@
 import hybrid_lib as hl
 import os
 
+###Snakemake file to run many centralities at the same time. 
+
 #we create a directory to store the temporary snakemake files
 snakemake_folder = "tmp_snakemake"  
 if not os.path.exists(snakemake_folder):
@@ -19,18 +21,23 @@ supermc_dict_value = {
     "w"        : "0.13"
 }
 
+#Number of events sampled from the particlization hypersup
 Nevents = "10000"
 
 initial_state_location = "/home/palermo/superMC/"
 
-initial_state_format = initial_state_location+"lhc_{cent}_20k.data"
-done_hydro_format = snakemake_folder + "done?hydro?{cent}"
-done_hyb_format = snakemake_folder + "done?hyb?{cent}"
+initial_state_format = initial_state_location+"lhc_{cent}_20k.data" ##format for the centrality files
+done_hydro_format = snakemake_folder + "done?hydro?{cent}" ##format to signal the hydro stage is over
+done_hyb_format = snakemake_folder + "done?hyb?{cent}" ## format to signal the hybrid is done
 
-list_cent = ["0-5","5-10","10-20","20-30","30-40","40-50"]
-done_hydro_list = [snakemake_folder + f"done?hydro?{cent}" for cent in list_cent]
+list_cent = ["0-5","5-10","10-20","20-30","30-40","40-50"] ##the list of centralities you want to explore
+
+##the expected files with the values of centrality
+done_hydro_list = [snakemake_folder + f"done?hydro?{cent}" for cent in list_cent] 
 done_hyb_list = [snakemake_folder + f"done?hyb?{cent}" for cent in list_cent]
 
+
+### For a clearer understanding of this section, check the comments in "Snakefile"
 rule all:
     input:
         done_hydro_list,
@@ -58,7 +65,7 @@ rule run_afterburn:
             with open(output.file_hybrid,"w") as f:
                 f.write("ammammao")
         
-# run the hybrid model for each combination of etaS and eta0
+
 rule run_vhlle:
     input:
 	      initial_state = initial_state_format
@@ -66,7 +73,7 @@ rule run_vhlle:
           file_hydro = done_hydro_format,
     run:
         icfile = input.initial_state 
-        centrality = wildcards.cent
+        centrality = wildcards.cent ###the value of centrality is now taken from the wildcards
 
         input_dictionary = {'etaS' : "0.08",
                             'e_crit' : "0.5",
@@ -76,8 +83,6 @@ rule run_vhlle:
         # modify the parameter values and create the output directory
         copy_params = hl.modify_dictionary("params_dict",**input_dictionary)
         copy_superMC_setup = hl.modify_dictionary("supermc_dict",**input_dictionary, **supermc_dict_value)
-        
-
         name_maindir = hl.name_folder(param=copy_params,smc=copy_superMC_setup,prefix="winner_centrality_"+centrality)
         path_tree = hl.init(name_maindir)
         

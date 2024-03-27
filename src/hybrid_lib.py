@@ -416,6 +416,8 @@ def input_format(dict):
     '''
     Return the expected format for output files as expected in Snakemake.
     The {} are used for wildcards in Snakemake.
+    The output is just a string which will be processed by snakemake.
+    Example "key?{key}?key2?{key2}.txt"
     '''
     string = ""
     for k in dict.keys():
