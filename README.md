@@ -1,5 +1,5 @@
 # smash-vhlle-hybrid-python
-This repository contains the scripts to run the chain of vHLLE+sampler+SMASH based on Python. To use it you need to have installed the following programs:
+This repository contains the scripts to run the chain of hydrodynamic and afterburning through the codes vHLLE, smash-hadron.sampler and SMASH. It is based on Python. To use it you need to have installed the following programs:
 * [vHLLE](https://github.com/yukarpenko/vhlle)
 * [vHLLE-parameters](https://github.com/yukarpenko/vhlle_params)
 * [SMASH](https://github.com/smash-transport/smash)
