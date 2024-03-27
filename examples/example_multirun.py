@@ -1,6 +1,7 @@
 import hybrid_lib as hl
 import subprocess
 
+##We decide how to name our main folder
 def name_path_tree(dict_par,dict,cent):
 	'''function to name the path tree'''
 	path_name = "system"+ dict["sNN"]+"centrality"+cent + "eta0" + dict["eta0"] + "ecrit" +dict_par["e_crit"] + "sigeta" + dict["sigmaeta"] + "w" + dict["w"] + "f" + dict["eff"]

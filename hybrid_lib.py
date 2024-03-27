@@ -19,7 +19,7 @@ params_dict = {
         "ymax"          :   "20.0",
         "etamin"        :   "-10.0",
         "etamax"        :   "10.0",
-        "icModel"       :   "8",
+        "icModel"       :   "9",
         "glauberVar"    :   "1",       	      #not used
         "icInputFile"   :   "ic/glissando/sources.RHIC.20-50.dat",
         "s0ScaleFactor" :   "53.55",	      #not used in glissando (glauber + rapidity)

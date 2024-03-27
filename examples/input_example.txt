@@ -1,5 +1,5 @@
-param 			PATHTOPARAM
-system 		RHIC200 #LHC5020
-icinput 		PATHTOIC
-outputfolder 		PATHTOMASTERFOLDER
-Nevents 		100
+param 			path_to_vHLLE_paramfile
+system 		    system_specifivation_for_vHLLE
+icinput 		path_to_initial_state_file
+outputfolder 	path_to_hybrid_output_folder
+Nevents 		Number_of_events_sampled_at_freezeout
